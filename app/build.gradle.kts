@@ -46,6 +46,8 @@ dependencies {
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)
 
+
+
     // Compose BOM
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.ui)
@@ -56,6 +58,7 @@ dependencies {
     // Room
     implementation(libs.androidx.room.common.jvm)
     implementation(libs.androidx.room.runtime.android)
+    implementation(libs.androidx.runtime.livedata)
     kapt("androidx.room:room-compiler:2.7.1")
 
     // Coroutines
@@ -72,4 +75,15 @@ dependencies {
     // Debug
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
+
+    // LiveData <-> Compose
+    implementation("androidx.lifecycle:lifecycle-runtime-compose:2.6.2")
+    implementation ("androidx.lifecycle:lifecycle-livedata-ktx:2.6.1")
+
+    // ViewModel untuk Compose
+    implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.6.2")
+
+    implementation(libs.androidx.lifecycle.viewmodel.compose)
+    implementation(libs.androidx.lifecycle.runtime.compose)
+
 }

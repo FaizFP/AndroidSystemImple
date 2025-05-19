@@ -20,6 +20,10 @@
         <activity android:name=".TransaksiActivity" />
         <activity android:name=".CatatanListActivity" />
         <activity android:name=".ProjectActivity" />
+        <activity android:name=".ListActivity" />
+        <activity android:name=".ProjectHasilActivity" />
+
+
 
 
 
