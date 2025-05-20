@@ -23,29 +23,28 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.tasananew.database.ProjectEntitity
-import com.example.tasananew.database.ProjectViewModel
-import com.example.tasananew.database.ProjectViewModelFactory
+import com.example.tasananew.database.CatatanEntitiy
+import com.example.tasananew.database.CatatanViewModel
+import com.example.tasananew.database.CatatanViewModelFactory
 
 @Composable
-fun ProjectHasilScreen() {
+fun CatatanHasilScreen() {
     val context = LocalContext.current
     val application = context.applicationContext as Application
-    val factory = ProjectViewModelFactory(application)
-    val viewModel: ProjectViewModel = viewModel(factory = factory)
+    val factory = CatatanViewModelFactory(application)
+    val viewModel: CatatanViewModel = viewModel(factory = factory)
 
-    val projectList by viewModel.projects.observeAsState(emptyList())
+    val catatanList by viewModel.projects.observeAsState(emptyList())
 
     Surface(modifier = Modifier.fillMaxSize(), color = Color(0xFF2F3E2F)) {
         Column(modifier = Modifier
             .fillMaxSize()
             .padding(16.dp)) {
-            Text("Daftar Proyek", fontSize = 20.sp, color = Color.White)
+            Text("Daftar Catatan", fontSize = 20.sp, color = Color.White)
 
-            if (projectList.isEmpty()) {
-                Text("Belum ada data proyek.", color = Color.White)
+            if (catatanList.isEmpty()) {
+                Text("Belum ada data catatan.", color = Color.White)
             } else {
-                // Header Tabel
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -53,33 +52,35 @@ fun ProjectHasilScreen() {
                         .background(Color.DarkGray),
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
-                    Text("Nama", color = Color.White, modifier = Modifier.weight(1f))
-                    Text("Model", color = Color.White, modifier = Modifier.weight(1f))
-                    Text("Deskripsi", color = Color.White, modifier = Modifier.weight(2f))
+                    Text("Proyek", color = Color.White, modifier = Modifier.weight(1f))
+                    Text("Saran", color = Color.White, modifier = Modifier.weight(1f))
+                    Text("Kategori", color = Color.White, modifier = Modifier.weight(1f))
+                    Text("Status", color = Color.White, modifier = Modifier.weight(1f))
                 }
 
                 HorizontalDivider(color = Color.White)
 
                 LazyColumn(modifier = Modifier.weight(1f)) {
-                    items(projectList) { project: ProjectEntitity ->
+                    items(catatanList) { catatan: CatatanEntitiy ->
                         Row(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .padding(vertical = 8.dp),
                             horizontalArrangement = Arrangement.SpaceBetween
                         ) {
-                            Text(text = project.name, color = Color.White, modifier = Modifier.weight(1f))
-                            Text(text = project.model, color = Color.White, modifier = Modifier.weight(1f))
-                            Text(text = project.description, color = Color.White, modifier = Modifier.weight(2f))
+                            Text(text = catatan.projectName, color = Color.White, modifier = Modifier.weight(1f))
+                            Text(text = catatan.suggest, color = Color.White, modifier = Modifier.weight(1f))
+                            Text(text = catatan.category, color = Color.White, modifier = Modifier.weight(1f))
+                            Text(text = catatan.status, color = Color.White, modifier = Modifier.weight(1f))
                         }
                         HorizontalDivider(color = Color.White.copy(alpha = 0.2f))
                     }
                 }
             }
 
-            // Tombol Next di atas menu bawah
-            RoundedNextButton("ADD") {
-                context.startActivity(Intent(context, ProjectActivity::class.java))
+            // Tombol untuk menambah catatan baru
+            RoundedNextButton("ADD CATATAN") {
+                context.startActivity(Intent(context, CatatanActivity::class.java))
             }
 
             // Menu bar di bawah
@@ -107,24 +108,5 @@ fun ProjectHasilScreen() {
                 }
             }
         }
-    }
-}
-
-@Composable
-fun RoundedNextButton(text: String, onClick: () -> Unit) {
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = 5.dp)
-            .clickable { onClick() }
-            .background(Color.LightGray, shape = RoundedCornerShape(50)),
-        contentAlignment = Alignment.Center
-    ) {
-        Text(
-            text = text,
-            fontSize = 16.sp,
-            color = Color.Black,
-            modifier = Modifier.padding(vertical = 12.dp, horizontal = 24.dp)
-        )
     }
 }

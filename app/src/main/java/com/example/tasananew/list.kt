@@ -29,9 +29,9 @@ class ListActivity : ComponentActivity() {
             MainScreen(
                 onItemClick = { selectedItem ->
                     when (selectedItem) {
-                        "PROJECT" -> startActivity(Intent(this, ProjectActivity::class.java))
+                        "PROJECT" -> startActivity(Intent(this, ProjectHasilActivity::class.java))
                         "DATA LINGKUNGAN" -> startActivity(Intent(this, DataLingkunganActivity::class.java))
-                        "CATATAN PEMELIHARAAN" -> startActivity(Intent(this, CatatanActivity::class.java))
+                        "CATATAN PEMELIHARAAN" -> startActivity(Intent(this, CatatanHasilActivity::class.java))
                         "DATA TRANSAKSI INPUT DAN OUTPUT" -> startActivity(Intent(this, TransaksiActivity::class.java))
                     }
                 },
@@ -49,7 +49,7 @@ fun MainScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color(0xFF1E1E1E))
+            .background(Color(0xFF6F765C))
             .padding(16.dp)
     ) {
         Text(
@@ -106,7 +106,7 @@ fun MainScreen(
                             .size(100.dp)
                             .padding(end = 20.dp)
                             .clickable {
-                                context.startActivity(Intent(context, ProjectHasilActivity::class.java))
+                                context.startActivity(Intent(context, MainActivity::class.java))
                             }
                     )
                 }

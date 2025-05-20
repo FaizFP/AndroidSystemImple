@@ -3,10 +3,9 @@ package com.example.tasananew.database
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 
-@Entity(tableName = "project") // ✅ lowercase juga
+@Entity(tableName = "project")
 data class ProjectEntitity(
-    @PrimaryKey val id: String,
-    val name: String,
+    @PrimaryKey val name: String,  // name jadi primary key
     val model: String,
     val description: String
 )

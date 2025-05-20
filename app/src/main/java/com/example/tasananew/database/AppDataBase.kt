@@ -5,7 +5,7 @@ import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 
-@Database(entities = [CatatanEntitiy::class, ProjectEntitity::class], version = 1,exportSchema = false)
+@Database(entities = [CatatanEntitiy::class, ProjectEntitity::class], version = 2, exportSchema = false)
 abstract class AppDatabase : RoomDatabase() {
     abstract fun catatanDao(): CatatanDao
     abstract fun projectDao(): ProjectDao
@@ -20,10 +20,13 @@ abstract class AppDatabase : RoomDatabase() {
                     context.applicationContext,
                     AppDatabase::class.java,
                     "tasana_database"
-                ).build()
+                )
+                    .fallbackToDestructiveMigration()  // Tambahkan ini agar migrasi otomatis dengan reset database
+                    .build()
                 INSTANCE = instance
                 instance
             }
         }
     }
 }
+

@@ -50,29 +50,27 @@ fun FormCatatan(onSave: (CatatanEntitiy) -> Unit) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
 
-    val project = remember { mutableStateOf("") }
     val suggest = remember { mutableStateOf("") }
-    val selectedCategory = remember { mutableStateOf("") }
-    val selectedStatus = remember { mutableStateOf("investigation") }
+    val selectedProject = remember { mutableStateOf("") }
+    val selectedCategory = remember { mutableStateOf("investigation") }
+    val selectedStatus = remember { mutableStateOf("Problem") }
 
-    // State untuk menyimpan list nama project dari database
     val projectOptions = remember { mutableStateListOf<String>() }
 
-    // Ambil data project dari database sekali saat composable pertama kali tampil
+    // Ambil nama-nama project dari database
     LaunchedEffect(Unit) {
         val db = AppDatabase.getDatabase(context)
         val projectDao = db.projectDao()
 
         val projects = withContext(Dispatchers.IO) {
-            projectDao.getAllProjects() // pastikan DAO kamu punya function getAllProjects()
+            projectDao.getAllProjects()
         }
 
         projectOptions.clear()
         projectOptions.addAll(projects.map { it.name })
 
-        // Set default selected ke yang pertama kalau ada
-        if (projects.isNotEmpty()) {
-            selectedCategory.value = projects[0].name
+        if (projectOptions.isNotEmpty()) {
+            selectedProject.value = projectOptions[0]
         }
     }
 
@@ -90,24 +88,15 @@ fun FormCatatan(onSave: (CatatanEntitiy) -> Unit) {
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Text("Catatan Pemeliharaan", fontSize = 20.sp, fontWeight = FontWeight.Bold, color = Color.White)
-
             Spacer(modifier = Modifier.height(16.dp))
 
-            OutlinedTextField(
-                value = project.value,
-                onValueChange = { project.value = it },
-                label = { Text("Project ID", color = Color.White) },
-                colors = OutlinedTextFieldDefaults.colors(
-                    focusedContainerColor = Color.DarkGray,
-                    unfocusedContainerColor = Color.DarkGray,
-                    focusedTextColor = Color.White,
-                    unfocusedTextColor = Color.White,
-                    focusedLabelColor = Color.White,
-                    unfocusedLabelColor = Color.White
-                ),
-                modifier = Modifier.fillMaxWidth()
-            )
 
+            Text("Nama Project", modifier = Modifier.align(Alignment.Start), color = Color.White)
+            DropdownMenuBox(selected = selectedProject, options = projectOptions)
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            // Textfield Suggest
             OutlinedTextField(
                 value = suggest.value,
                 onValueChange = { suggest.value = it },
@@ -125,30 +114,35 @@ fun FormCatatan(onSave: (CatatanEntitiy) -> Unit) {
 
             Spacer(modifier = Modifier.height(8.dp))
 
-            Text("Category (Nama Project)", modifier = Modifier.align(Alignment.Start), color = Color.White)
-
-            // Dropdown isi dari nama project yang ada di database
-            DropdownMenuBox(selected = selectedCategory, options = projectOptions)
+            // Dropdown Category
+            Text("Category", modifier = Modifier.align(Alignment.Start), color = Color.White)
+            DropdownMenuBox(
+                selected = selectedCategory,
+                options = listOf("investigation", "comparison", "maintenance")
+            )
 
             Spacer(modifier = Modifier.height(8.dp))
 
+            // Dropdown Status
             Text("Status", modifier = Modifier.align(Alignment.Start), color = Color.White)
-            DropdownMenuBox(selected = selectedStatus, options = listOf("investigation", "comparison", "maintenance"))
+            DropdownMenuBox(
+                selected = selectedStatus,
+                options = listOf("Problem", "Update", "Repair")
+            )
 
             Spacer(modifier = Modifier.height(20.dp))
 
             Button(
                 onClick = {
                     val catatan = CatatanEntitiy(
-                        projectId = project.value,
+                        projectName = selectedProject.value,
                         suggest = suggest.value,
-                        category = selectedCategory.value, // ambil dari dropdown yang otomatis isi nama project
+                        category = selectedCategory.value,
                         status = selectedStatus.value
                     )
                     onSave(catatan)
 
                     // Reset form
-                    project.value = ""
                     suggest.value = ""
                 },
                 colors = ButtonDefaults.buttonColors(containerColor = Color.LightGray),
@@ -159,6 +153,7 @@ fun FormCatatan(onSave: (CatatanEntitiy) -> Unit) {
         }
     }
 }
+
 
 @Composable
 fun DropdownMenuBox(selected: MutableState<String>, options: List<String>) {

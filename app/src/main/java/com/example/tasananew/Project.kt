@@ -21,7 +21,6 @@ import com.example.tasananew.database.ProjectEntitity
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import java.util.UUID
 
 class ProjectActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -131,8 +130,7 @@ fun FormProject() {
                         val projectDao = db.projectDao()
 
                         val project = ProjectEntitity(
-                            id = UUID.randomUUID().toString(),
-                            name = namaProject.value,
+                            name = namaProject.value,  // sesuai PK di entity
                             model = modelUsed.value,
                             description = deskripsi.value
                         )

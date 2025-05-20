@@ -6,18 +6,18 @@ import androidx.room.Index
 import androidx.room.PrimaryKey
 
 @Entity(
-    tableName = "catatan", // ✅ lowercase, lebih aman
+    tableName = "catatan",
     foreignKeys = [ForeignKey(
         entity = ProjectEntitity::class,
-        parentColumns = ["id"],
-        childColumns = ["projectId"],
+        parentColumns = ["name"],  // mengarah ke primary key di ProjectEntitity
+        childColumns = ["projectName"],
         onDelete = ForeignKey.CASCADE
     )],
-    indices = [Index(value = ["projectId"])]
+    indices = [Index(value = ["projectName"])]
 )
 data class CatatanEntitiy(
     @PrimaryKey(autoGenerate = true) val id: Int = 0,
-    val projectId: String,
+    val projectName: String,  // foreign key mengarah ke ProjectEntitity.name
     val suggest: String,
     val category: String,
     val status: String

@@ -28,7 +28,7 @@ class MainActivity : ComponentActivity() {
         setContent {
             Surface(
                 modifier = Modifier.fillMaxSize(),
-                color = Color(0xFF2F3E2F)
+                color = Color(0xFF6F765C)
             ) {
                 SystemImplementationScreen()
             }

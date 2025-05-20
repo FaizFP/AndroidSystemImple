@@ -9,7 +9,7 @@ interface ProjectDao {
     @Insert
     suspend fun insertProject(project: ProjectEntitity)
 
-    @Query("SELECT * FROM project") // ✅ sesuaikan tableName baru
+    @Query("SELECT * FROM project")
     suspend fun getAllProjects(): List<ProjectEntitity>
 }
 
@@ -18,6 +18,9 @@ interface CatatanDao {
     @Insert
     suspend fun insertCatatan(catatan: CatatanEntitiy)
 
-    @Query("SELECT * FROM catatan WHERE projectId = :projectId") // ✅ tableName baru
-    suspend fun getCatatanByProject(projectId: String): List<CatatanEntitiy>
+    @Query("SELECT * FROM catatan WHERE projectName = :projectName") // Ganti projectId jadi projectName
+    suspend fun getCatatanByProject(projectName: String): List<CatatanEntitiy>
+
+    @Query("SELECT * FROM catatan")
+    suspend fun getAllCatatan(): List<CatatanEntitiy>
 }
