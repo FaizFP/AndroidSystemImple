@@ -23,6 +23,8 @@
         <activity android:name=".ListActivity" />
         <activity android:name=".ProjectHasilActivity" />
         <activity android:name="CatatanHasilActivity" />
+        <activity android:name=".DataLingkunganListActivity" />
+
 
 
 

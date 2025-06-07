@@ -30,7 +30,7 @@ class ListActivity : ComponentActivity() {
                 onItemClick = { selectedItem ->
                     when (selectedItem) {
                         "PROJECT" -> startActivity(Intent(this, ProjectHasilActivity::class.java))
-                        "DATA LINGKUNGAN" -> startActivity(Intent(this, DataLingkunganActivity::class.java))
+                        "DATA LINGKUNGAN" -> startActivity(Intent(this, DataLingkunganListActivity::class.java))
                         "CATATAN PEMELIHARAAN" -> startActivity(Intent(this, CatatanHasilActivity::class.java))
                         "DATA TRANSAKSI INPUT DAN OUTPUT" -> startActivity(Intent(this, TransaksiActivity::class.java))
                     }

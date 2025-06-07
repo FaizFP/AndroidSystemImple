@@ -5,10 +5,11 @@ import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 
-@Database(entities = [CatatanEntitiy::class, ProjectEntitity::class], version = 2, exportSchema = false)
+@Database(entities = [CatatanEntitiy::class, ProjectEntitity::class, LingkunganEntity::class], version = 3, exportSchema = false)
 abstract class AppDatabase : RoomDatabase() {
     abstract fun catatanDao(): CatatanDao
     abstract fun projectDao(): ProjectDao
+    abstract fun lingkunganDao(): LingkunganDao
 
     companion object {
         @Volatile
