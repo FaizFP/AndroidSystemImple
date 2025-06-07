@@ -36,7 +36,6 @@ fun DataLingkunganHasilScreen() {
 
     val lingkunganList by viewModel.lingkunganList.observeAsState(emptyList())
 
-
     Surface(modifier = Modifier.fillMaxSize(), color = Color(0xFF2F3E2F)) {
         Column(modifier = Modifier
             .fillMaxSize()
@@ -59,6 +58,7 @@ fun DataLingkunganHasilScreen() {
                     Text("CPU", color = Color.White, modifier = Modifier.weight(1f))
                     Text("RAM", color = Color.White, modifier = Modifier.weight(1f))
                     Text("DB", color = Color.White, modifier = Modifier.weight(1f))
+                    Text("Aksi", color = Color.White, modifier = Modifier.weight(1f))
                 }
 
                 HorizontalDivider(color = Color.White)
@@ -76,6 +76,27 @@ fun DataLingkunganHasilScreen() {
                             Text(item.cpu, color = Color.White, modifier = Modifier.weight(1f))
                             Text(item.ram, color = Color.White, modifier = Modifier.weight(1f))
                             Text(item.database, color = Color.White, modifier = Modifier.weight(1f))
+
+                            Column(modifier = Modifier.weight(1f)) {
+                                Text(
+                                    "Edit",
+                                    color = Color.Cyan,
+                                    modifier = Modifier
+                                        .padding(bottom = 4.dp)
+                                        .clickable {
+                                            val intent = Intent(context, EditLingkunganActivity::class.java)
+                                            intent.putExtra("id", item.id)
+                                            context.startActivity(intent)
+                                        }
+                                )
+                                Text(
+                                    "Delete",
+                                    color = Color.Red,
+                                    modifier = Modifier.clickable {
+                                        viewModel.deleteLingkungan(item)
+                                    }
+                                )
+                            }
                         }
                         HorizontalDivider(color = Color.White.copy(alpha = 0.2f))
                     }

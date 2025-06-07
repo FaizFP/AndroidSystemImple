@@ -13,4 +13,10 @@ interface LingkunganDao {
 
     @Query("SELECT * FROM lingkungan")
     fun getAll(): LiveData<List<LingkunganEntity>>
+
+    @Update
+    suspend fun update(data: LingkunganEntity)
+
+    @Delete
+    suspend fun delete(data: LingkunganEntity)
 }
