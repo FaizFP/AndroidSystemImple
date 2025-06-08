@@ -3,6 +3,9 @@ package com.example.tasananew.database
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.Query
+import androidx.room.Update
+import androidx.room.Delete
+
 
 @Dao
 interface ProjectDao {
@@ -11,6 +14,12 @@ interface ProjectDao {
 
     @Query("SELECT * FROM project")
     suspend fun getAllProjects(): List<ProjectEntitity>
+
+    @Update
+    fun update(project: ProjectEntitity)
+
+    @Delete
+    fun delete(project: ProjectEntitity)
 }
 
 @Dao

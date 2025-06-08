@@ -55,7 +55,7 @@ fun FormProject() {
     ) {
         Column(
             modifier = Modifier
-                .background(Color(0xFF333D2E), RoundedCornerShape(16.dp))
+                .background(Color(0xFF6F765C), RoundedCornerShape(16.dp))
                 .padding(24.dp)
                 .width(300.dp),
             horizontalAlignment = Alignment.CenterHorizontally

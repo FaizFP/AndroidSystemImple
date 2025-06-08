@@ -56,33 +56,63 @@ fun ProjectHasilScreen() {
                     Text("Nama", color = Color.White, modifier = Modifier.weight(1f))
                     Text("Model", color = Color.White, modifier = Modifier.weight(1f))
                     Text("Deskripsi", color = Color.White, modifier = Modifier.weight(2f))
+                    Spacer(modifier = Modifier.width(50.dp))
                 }
 
                 HorizontalDivider(color = Color.White)
 
                 LazyColumn(modifier = Modifier.weight(1f)) {
                     items(projectList) { project: ProjectEntitity ->
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(vertical = 8.dp),
-                            horizontalArrangement = Arrangement.SpaceBetween
-                        ) {
-                            Text(text = project.name, color = Color.White, modifier = Modifier.weight(1f))
-                            Text(text = project.model, color = Color.White, modifier = Modifier.weight(1f))
-                            Text(text = project.description, color = Color.White, modifier = Modifier.weight(2f))
+                        Column {
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(vertical = 8.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Text(text = project.name, color = Color.White, modifier = Modifier.weight(1f))
+                                Text(text = project.model, color = Color.White, modifier = Modifier.weight(1f))
+                                Text(text = project.description, color = Color.White, modifier = Modifier.weight(2f))
+                            }
+
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(bottom = 8.dp),
+                                horizontalArrangement = Arrangement.End
+                            ) {
+                                Text(
+                                    "Edit",
+                                    color = Color.Cyan,
+                                    modifier = Modifier
+                                        .padding(end = 16.dp)
+                                        .clickable {
+                                            val intent = Intent(context, EditProjectActivity::class.java)
+                                            intent.putExtra("name", project.name)
+                                            intent.putExtra("model", project.model)
+                                            intent.putExtra("description", project.description)
+                                            context.startActivity(intent)
+                                        }
+                                )
+                                Text(
+                                    "Delete",
+                                    color = Color.Red,
+                                    modifier = Modifier.clickable {
+                                        viewModel.deleteProject(project)
+                                    }
+                                )
+                            }
+
+                            HorizontalDivider(color = Color.White.copy(alpha = 0.2f))
                         }
-                        HorizontalDivider(color = Color.White.copy(alpha = 0.2f))
                     }
                 }
             }
 
-            // Tombol Next di atas menu bawah
             RoundedNextButton("ADD") {
                 context.startActivity(Intent(context, ProjectActivity::class.java))
             }
 
-            // Menu bar di bawah
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -109,6 +139,7 @@ fun ProjectHasilScreen() {
         }
     }
 }
+
 
 @Composable
 fun RoundedNextButton(text: String, onClick: () -> Unit) {

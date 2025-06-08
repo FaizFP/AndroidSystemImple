@@ -132,6 +132,6 @@ fun DataLingkunganHasilScreen() {
                     )
                 }
             }
+            }
         }
-    }
 }
