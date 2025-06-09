@@ -1,5 +1,6 @@
 package com.example.tasananew
 
+import android.app.DatePickerDialog
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -22,6 +23,7 @@ import com.example.tasananew.database.CatatanEntitiy
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.util.*
 
 class CatatanActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -33,7 +35,6 @@ class CatatanActivity : ComponentActivity() {
                     color = Color(0xFF6F765C)
                 ) {
                     FormCatatan { catatanEntity ->
-                        // Save ke database Room
                         lifecycleScope.launch(Dispatchers.IO) {
                             val db = AppDatabase.getDatabase(applicationContext)
                             db.catatanDao().insertCatatan(catatanEntity)
@@ -48,27 +49,26 @@ class CatatanActivity : ComponentActivity() {
 @Composable
 fun FormCatatan(onSave: (CatatanEntitiy) -> Unit) {
     val context = LocalContext.current
-    val scope = rememberCoroutineScope()
 
     val suggest = remember { mutableStateOf("") }
     val selectedProject = remember { mutableStateOf("") }
     val selectedCategory = remember { mutableStateOf("investigation") }
     val selectedStatus = remember { mutableStateOf("Problem") }
 
+    val startDate = remember { mutableStateOf("") }
+    val endDate = remember { mutableStateOf("") }
+    val namaPemangkuKepentingan = remember { mutableStateOf("") }
+    val namaPeran = remember { mutableStateOf("") }
+
     val projectOptions = remember { mutableStateListOf<String>() }
 
-    // Ambil nama-nama project dari database
     LaunchedEffect(Unit) {
         val db = AppDatabase.getDatabase(context)
-        val projectDao = db.projectDao()
-
         val projects = withContext(Dispatchers.IO) {
-            projectDao.getAllProjects()
+            db.projectDao().getAllProjects()
         }
-
         projectOptions.clear()
         projectOptions.addAll(projects.map { it.name })
-
         if (projectOptions.isNotEmpty()) {
             selectedProject.value = projectOptions[0]
         }
@@ -90,13 +90,10 @@ fun FormCatatan(onSave: (CatatanEntitiy) -> Unit) {
             Text("Catatan Pemeliharaan", fontSize = 20.sp, fontWeight = FontWeight.Bold, color = Color.White)
             Spacer(modifier = Modifier.height(16.dp))
 
-
             Text("Nama Project", modifier = Modifier.align(Alignment.Start), color = Color.White)
             DropdownMenuBox(selected = selectedProject, options = projectOptions)
-
             Spacer(modifier = Modifier.height(8.dp))
 
-            // Textfield Suggest
             OutlinedTextField(
                 value = suggest.value,
                 onValueChange = { suggest.value = it },
@@ -111,25 +108,54 @@ fun FormCatatan(onSave: (CatatanEntitiy) -> Unit) {
                 ),
                 modifier = Modifier.fillMaxWidth()
             )
-
             Spacer(modifier = Modifier.height(8.dp))
 
-            // Dropdown Category
             Text("Category", modifier = Modifier.align(Alignment.Start), color = Color.White)
-            DropdownMenuBox(
-                selected = selectedCategory,
-                options = listOf("investigation", "comparison", "maintenance")
-            )
-
+            DropdownMenuBox(selected = selectedCategory, options = listOf("investigation", "comparison", "maintenance"))
             Spacer(modifier = Modifier.height(8.dp))
 
-            // Dropdown Status
             Text("Status", modifier = Modifier.align(Alignment.Start), color = Color.White)
-            DropdownMenuBox(
-                selected = selectedStatus,
-                options = listOf("Problem", "Update", "Repair")
-            )
+            DropdownMenuBox(selected = selectedStatus, options = listOf("Problem", "Update", "Repair"))
+            Spacer(modifier = Modifier.height(8.dp))
 
+            Text("Start Date", modifier = Modifier.align(Alignment.Start), color = Color.White)
+            DatePickerField("Pilih Tanggal Mulai", selectedDate = startDate)
+            Spacer(modifier = Modifier.height(8.dp))
+
+            Text("End Date", modifier = Modifier.align(Alignment.Start), color = Color.White)
+            DatePickerField("Pilih Tanggal Selesai", selectedDate = endDate)
+            Spacer(modifier = Modifier.height(8.dp))
+
+            OutlinedTextField(
+                value = namaPemangkuKepentingan.value,
+                onValueChange = { namaPemangkuKepentingan.value = it },
+                label = { Text("Nama Pemangku Kepentingan", color = Color.White) },
+                colors = OutlinedTextFieldDefaults.colors(
+                    focusedContainerColor = Color.DarkGray,
+                    unfocusedContainerColor = Color.DarkGray,
+                    focusedTextColor = Color.White,
+                    unfocusedTextColor = Color.White,
+                    focusedLabelColor = Color.White,
+                    unfocusedLabelColor = Color.White
+                ),
+                modifier = Modifier.fillMaxWidth()
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+
+            OutlinedTextField(
+                value = namaPeran.value,
+                onValueChange = { namaPeran.value = it },
+                label = { Text("Nama Peran", color = Color.White) },
+                colors = OutlinedTextFieldDefaults.colors(
+                    focusedContainerColor = Color.DarkGray,
+                    unfocusedContainerColor = Color.DarkGray,
+                    focusedTextColor = Color.White,
+                    unfocusedTextColor = Color.White,
+                    focusedLabelColor = Color.White,
+                    unfocusedLabelColor = Color.White
+                ),
+                modifier = Modifier.fillMaxWidth()
+            )
             Spacer(modifier = Modifier.height(20.dp))
 
             Button(
@@ -138,12 +164,20 @@ fun FormCatatan(onSave: (CatatanEntitiy) -> Unit) {
                         projectName = selectedProject.value,
                         suggest = suggest.value,
                         category = selectedCategory.value,
-                        status = selectedStatus.value
+                        status = selectedStatus.value,
+                        startDate = startDate.value,
+                        endDate = endDate.value,
+                        namaPemangkuKepentingan = namaPemangkuKepentingan.value,
+                        namaPeran = namaPeran.value
                     )
                     onSave(catatan)
 
                     // Reset form
                     suggest.value = ""
+                    startDate.value = ""
+                    endDate.value = ""
+                    namaPemangkuKepentingan.value = ""
+                    namaPeran.value = ""
                 },
                 colors = ButtonDefaults.buttonColors(containerColor = Color.LightGray),
                 modifier = Modifier.fillMaxWidth()
@@ -153,7 +187,6 @@ fun FormCatatan(onSave: (CatatanEntitiy) -> Unit) {
         }
     }
 }
-
 
 @Composable
 fun DropdownMenuBox(selected: MutableState<String>, options: List<String>) {
@@ -182,5 +215,33 @@ fun DropdownMenuBox(selected: MutableState<String>, options: List<String>) {
                 )
             }
         }
+    }
+}
+
+@Composable
+fun DatePickerField(label: String, selectedDate: MutableState<String>) {
+    val context = LocalContext.current
+    val calendar = Calendar.getInstance()
+    val year = calendar.get(Calendar.YEAR)
+    val month = calendar.get(Calendar.MONTH)
+    val day = calendar.get(Calendar.DAY_OF_MONTH)
+
+    val datePickerDialog = remember {
+        DatePickerDialog(context, { _, y, m, d ->
+            selectedDate.value = "$d/${m + 1}/$y"
+        }, year, month, day)
+    }
+
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(Color.DarkGray, RoundedCornerShape(5.dp))
+            .clickable { datePickerDialog.show() }
+            .padding(12.dp)
+    ) {
+        Text(
+            if (selectedDate.value.isEmpty()) label else selectedDate.value,
+            color = Color.White
+        )
     }
 }

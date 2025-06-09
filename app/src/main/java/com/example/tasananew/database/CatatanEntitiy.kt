@@ -20,5 +20,9 @@ data class CatatanEntitiy(
     val projectName: String,  // foreign key mengarah ke ProjectEntitity.name
     val suggest: String,
     val category: String,
-    val status: String
+    val status: String,
+    val startDate: String,
+    val endDate: String,
+    val namaPemangkuKepentingan: String,
+    val namaPeran: String
 )
