@@ -4,6 +4,7 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
@@ -12,6 +13,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -21,6 +23,8 @@ import com.example.tasananew.database.ProjectEntitity
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import android.content.Intent
+
 
 class ProjectActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -47,17 +51,18 @@ fun FormProject() {
     val modelUsed = remember { mutableStateOf("") }
     val deskripsi = remember { mutableStateOf("") }
 
-    Box(
+    Column(
         modifier = Modifier
             .fillMaxSize()
             .padding(16.dp),
-        contentAlignment = Alignment.Center
+        verticalArrangement = Arrangement.SpaceBetween
     ) {
+        // Form input di atas
         Column(
             modifier = Modifier
                 .background(Color(0xFF6F765C), RoundedCornerShape(16.dp))
                 .padding(24.dp)
-                .width(300.dp),
+                .fillMaxWidth(),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Text(
@@ -130,7 +135,7 @@ fun FormProject() {
                         val projectDao = db.projectDao()
 
                         val project = ProjectEntitity(
-                            name = namaProject.value,  // sesuai PK di entity
+                            name = namaProject.value,
                             model = modelUsed.value,
                             description = deskripsi.value
                         )
@@ -151,11 +156,34 @@ fun FormProject() {
                 Text("SAVE", color = Color.Black, fontWeight = FontWeight.Bold)
             }
         }
+
+        // Menu bar bawah
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(70.dp)
+                .padding(top = 16.dp)
+                .background(Color.Gray, shape = RoundedCornerShape(12.dp)),
+            contentAlignment = Alignment.Center
+        ) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.Center
+            ) {
+                val context = LocalContext.current
+                androidx.compose.foundation.Image(
+                    painter = painterResource(id = R.drawable.kertas),
+                    contentDescription = "Menu Kertas",
+                    modifier = Modifier
+                        .size(50.dp)
+                        .clickable {
+                            context.startActivity(
+                                Intent(context, ListActivity::class.java)
+                            )
+                        }
+                )
+            }
+        }
     }
 }
 
-@Preview(showBackground = true)
-@Composable
-fun PreviewProjectActivity() {
-    FormProject()
-}

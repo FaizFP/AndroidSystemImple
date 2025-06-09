@@ -32,4 +32,12 @@ interface CatatanDao {
 
     @Query("SELECT * FROM catatan")
     suspend fun getAllCatatan(): List<CatatanEntitiy>
+
+    @Update
+    suspend fun updateCatatan(catatan: CatatanEntitiy)
+
+    @Delete
+    suspend fun deleteCatatan(catatan: CatatanEntitiy)
+
+
 }

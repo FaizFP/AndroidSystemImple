@@ -26,6 +26,7 @@
         <activity android:name=".DataLingkunganListActivity" />
         <activity android:name=".EditLingkunganActivity"/>
         <activity android:name="EditProjectActivity"/>
+        <activity android:name="EditCatatanActivity"/>
 
 
 
