@@ -32,7 +32,9 @@ class ListActivity : ComponentActivity() {
                         "PROJECT" -> startActivity(Intent(this, ProjectHasilActivity::class.java))
                         "DATA LINGKUNGAN" -> startActivity(Intent(this, DataLingkunganListActivity::class.java))
                         "CATATAN PEMELIHARAAN" -> startActivity(Intent(this, CatatanHasilActivity::class.java))
-                        "DATA TRANSAKSI INPUT DAN OUTPUT" -> startActivity(Intent(this, TransaksiActivity::class.java))
+                        "DATA TRANSAKSI INPUT DAN OUTPUT" -> startActivity(Intent(this, TransaksiHasilActivity::class.java))
+                        "KINERJA PERANGKAT LUNAK" -> startActivity(Intent(this, kinerjaPerangkatLunakActivity::class.java)) // ✅ Tambahan penting
+                        // Tambahkan juga untuk aktivitas lain jika diperlukan
                     }
                 },
                 context = this
@@ -44,7 +46,7 @@ class ListActivity : ComponentActivity() {
 @Composable
 fun MainScreen(
     onItemClick: (String) -> Unit,
-    context: Context? = null // dibuat nullable agar bisa dipakai Preview
+    context: Context? = null
 ) {
     Column(
         modifier = Modifier
@@ -59,7 +61,6 @@ fun MainScreen(
             modifier = Modifier.padding(bottom = 24.dp)
         )
 
-        // Kotak "PROJECT" di atas
         DataBox(title = "PROJECT", onClick = { onItemClick("PROJECT") })
 
         Spacer(modifier = Modifier.height(16.dp))
@@ -86,7 +87,6 @@ fun MainScreen(
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Menu bar di bawah (hanya tampilkan kalau context ada)
         if (context != null) {
             Box(
                 modifier = Modifier

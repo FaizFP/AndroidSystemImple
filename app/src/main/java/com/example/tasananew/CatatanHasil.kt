@@ -9,11 +9,8 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -26,8 +23,6 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.tasananew.database.CatatanEntitiy
 import com.example.tasananew.database.CatatanViewModel
 import com.example.tasananew.database.CatatanViewModelFactory
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 
 @Composable
 fun CatatanHasilScreen() {
@@ -38,19 +33,49 @@ fun CatatanHasilScreen() {
 
     val catatanList by viewModel.projects.observeAsState(emptyList())
 
-    Surface(modifier = Modifier.fillMaxSize(), color = Color(0xFF2F3E2F)) {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(16.dp)
-        ) {
+    var selectedFilter by remember { mutableStateOf("Semua") }
+    val filterOptions = listOf("Semua", "Saran", "Kategori", "Status", "Mulai", "Selesai", "Pemangku", "Peran")
+    var dropdownExpanded by remember { mutableStateOf(false) }
 
+    Surface(modifier = Modifier.fillMaxSize(), color = Color(0xFF2F3E2F)) {
+        Column(modifier = Modifier.fillMaxSize().padding(16.dp)) {
             Text("Daftar Catatan", fontSize = 20.sp, color = Color.White)
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            // Dropdown filter sederhana
+            Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.CenterEnd) {
+                Button(
+                    onClick = { dropdownExpanded = true },
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = Color.White,
+                        contentColor = Color.Black
+                    )
+                ) {
+                    Text(selectedFilter)
+                }
+
+                DropdownMenu(
+                    expanded = dropdownExpanded,
+                    onDismissRequest = { dropdownExpanded = false }
+                ) {
+                    filterOptions.forEach { option ->
+                        DropdownMenuItem(
+                            text = { Text(option) },
+                            onClick = {
+                                selectedFilter = option
+                                dropdownExpanded = false
+                            }
+                        )
+                    }
+                }
+            }
+
+            Spacer(modifier = Modifier.height(8.dp))
 
             if (catatanList.isEmpty()) {
                 Text("Belum ada data catatan.", color = Color.White)
             } else {
-                // HEADER
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -59,16 +84,24 @@ fun CatatanHasilScreen() {
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
                     Text("Proyek", color = Color.White, modifier = Modifier.weight(1f))
-                    Text("Saran", color = Color.White, modifier = Modifier.weight(1f))
-                    Text("Kategori", color = Color.White, modifier = Modifier.weight(1f))
-                    Text("Status", color = Color.White, modifier = Modifier.weight(1f))
-                    Text("Mulai", color = Color.White, modifier = Modifier.weight(1f))
-                    Text("Selesai", color = Color.White, modifier = Modifier.weight(1f))
-                    Text("Pemangku", color = Color.White, modifier = Modifier.weight(1f))
-                    Text("Peran", color = Color.White, modifier = Modifier.weight(1f))
+
+                    if (selectedFilter == "Semua" || selectedFilter == "Saran")
+                        Text("Saran", color = Color.White, modifier = Modifier.weight(1f))
+                    if (selectedFilter == "Semua" || selectedFilter == "Kategori")
+                        Text("Kategori", color = Color.White, modifier = Modifier.weight(1f))
+                    if (selectedFilter == "Semua" || selectedFilter == "Status")
+                        Text("Status", color = Color.White, modifier = Modifier.weight(1f))
+                    if (selectedFilter == "Semua" || selectedFilter == "Mulai")
+                        Text("Mulai", color = Color.White, modifier = Modifier.weight(1f))
+                    if (selectedFilter == "Semua" || selectedFilter == "Selesai")
+                        Text("Selesai", color = Color.White, modifier = Modifier.weight(1f))
+                    if (selectedFilter == "Semua" || selectedFilter == "Pemangku")
+                        Text("Pemangku", color = Color.White, modifier = Modifier.weight(1f))
+                    if (selectedFilter == "Semua" || selectedFilter == "Peran")
+                        Text("Peran", color = Color.White, modifier = Modifier.weight(1f))
                 }
 
-                androidx.compose.material3.Divider(color = Color.White)
+                Divider(color = Color.White)
 
                 LazyColumn(modifier = Modifier.weight(1f)) {
                     items(catatanList) { catatan: CatatanEntitiy ->
@@ -79,46 +112,22 @@ fun CatatanHasilScreen() {
                                     .padding(vertical = 8.dp),
                                 horizontalArrangement = Arrangement.SpaceBetween
                             ) {
-                                Text(
-                                    catatan.projectName,
-                                    color = Color.White,
-                                    modifier = Modifier.weight(1f)
-                                )
-                                Text(
-                                    catatan.suggest,
-                                    color = Color.White,
-                                    modifier = Modifier.weight(1f)
-                                )
-                                Text(
-                                    catatan.category,
-                                    color = Color.White,
-                                    modifier = Modifier.weight(1f)
-                                )
-                                Text(
-                                    catatan.status,
-                                    color = Color.White,
-                                    modifier = Modifier.weight(1f)
-                                )
-                                Text(
-                                    catatan.startDate,
-                                    color = Color.White,
-                                    modifier = Modifier.weight(1f)
-                                )
-                                Text(
-                                    catatan.endDate,
-                                    color = Color.White,
-                                    modifier = Modifier.weight(1f)
-                                )
-                                Text(
-                                    catatan.namaPemangkuKepentingan,
-                                    color = Color.White,
-                                    modifier = Modifier.weight(1f)
-                                )
-                                Text(
-                                    catatan.namaPeran,
-                                    color = Color.White,
-                                    modifier = Modifier.weight(1f)
-                                )
+                                Text(catatan.projectName, color = Color.White, modifier = Modifier.weight(1f))
+
+                                if (selectedFilter == "Semua" || selectedFilter == "Saran")
+                                    Text(catatan.suggest, color = Color.White, modifier = Modifier.weight(1f))
+                                if (selectedFilter == "Semua" || selectedFilter == "Kategori")
+                                    Text(catatan.category, color = Color.White, modifier = Modifier.weight(1f))
+                                if (selectedFilter == "Semua" || selectedFilter == "Status")
+                                    Text(catatan.status, color = Color.White, modifier = Modifier.weight(1f))
+                                if (selectedFilter == "Semua" || selectedFilter == "Mulai")
+                                    Text(catatan.startDate, color = Color.White, modifier = Modifier.weight(1f))
+                                if (selectedFilter == "Semua" || selectedFilter == "Selesai")
+                                    Text(catatan.endDate, color = Color.White, modifier = Modifier.weight(1f))
+                                if (selectedFilter == "Semua" || selectedFilter == "Pemangku")
+                                    Text(catatan.namaPemangkuKepentingan, color = Color.White, modifier = Modifier.weight(1f))
+                                if (selectedFilter == "Semua" || selectedFilter == "Peran")
+                                    Text(catatan.namaPeran, color = Color.White, modifier = Modifier.weight(1f))
                             }
 
                             Row(
@@ -133,19 +142,16 @@ fun CatatanHasilScreen() {
                                     modifier = Modifier
                                         .padding(end = 16.dp)
                                         .clickable {
-                                            val intent =
-                                                Intent(context, EditCatatanActivity::class.java)
-                                            intent.putExtra("projectName", catatan.projectName)
-                                            intent.putExtra("suggest", catatan.suggest)
-                                            intent.putExtra("category", catatan.category)
-                                            intent.putExtra("status", catatan.status)
-                                            intent.putExtra("startDate", catatan.startDate)
-                                            intent.putExtra("endDate", catatan.endDate)
-                                            intent.putExtra(
-                                                "namaPemangkuKepentingan",
-                                                catatan.namaPemangkuKepentingan
-                                            )
-                                            intent.putExtra("namaPeran", catatan.namaPeran)
+                                            val intent = Intent(context, EditCatatanActivity::class.java).apply {
+                                                putExtra("projectName", catatan.projectName)
+                                                putExtra("suggest", catatan.suggest)
+                                                putExtra("category", catatan.category)
+                                                putExtra("status", catatan.status)
+                                                putExtra("startDate", catatan.startDate)
+                                                putExtra("endDate", catatan.endDate)
+                                                putExtra("namaPemangkuKepentingan", catatan.namaPemangkuKepentingan)
+                                                putExtra("namaPeran", catatan.namaPeran)
+                                            }
                                             context.startActivity(intent)
                                         }
                                 )
@@ -157,7 +163,8 @@ fun CatatanHasilScreen() {
                                     }
                                 )
                             }
-                            androidx.compose.material3.Divider(color = Color.White.copy(alpha = 0.2f))
+
+                            Divider(color = Color.White.copy(alpha = 0.2f))
                         }
                     }
                 }
@@ -165,7 +172,6 @@ fun CatatanHasilScreen() {
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Tombol ADD CATATAN
             Button(
                 onClick = {
                     context.startActivity(Intent(context, CatatanActivity::class.java))
@@ -174,14 +180,13 @@ fun CatatanHasilScreen() {
                     .fillMaxWidth()
                     .height(50.dp),
                 shape = RoundedCornerShape(12.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF4CAF50)) // hijau
+                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF4CAF50))
             ) {
                 Text("ADD CATATAN", color = Color.White, fontSize = 16.sp)
             }
 
             Spacer(modifier = Modifier.height(12.dp))
 
-            // Menu bar bawah
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -196,8 +201,7 @@ fun CatatanHasilScreen() {
                     horizontalArrangement = Arrangement.SpaceEvenly,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    // Contoh icon / text di menu bar bawah, bisa ganti sesuai kebutuhan
-                    androidx.compose.foundation.Image(
+                    Image(
                         painter = painterResource(id = R.drawable.kertas),
                         contentDescription = "Menu Kertas",
                         modifier = Modifier
@@ -206,19 +210,9 @@ fun CatatanHasilScreen() {
                                 context.startActivity(Intent(context, ListActivity::class.java))
                             }
                     )
-
-                    Text(
-                        "Menu Lain",
-                        color = Color.White,
-                        modifier = Modifier.clickable {
-                            // contoh action
-                        }
-                    )
+                    Text("Menu Lain", color = Color.White)
                 }
             }
         }
     }
 }
-
-
-

@@ -1,4 +1,10 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <uses-feature
+        android:name="android.hardware.camera"
+        android:required="false" />
+    <uses-permission android:name="android.permission.CAMERA" />
+
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
@@ -22,17 +28,15 @@
         <activity android:name=".ProjectActivity" />
         <activity android:name=".ListActivity" />
         <activity android:name=".ProjectHasilActivity" />
-        <activity android:name="CatatanHasilActivity" />
+        <activity android:name=".CatatanHasilActivity" />
         <activity android:name=".DataLingkunganListActivity" />
-        <activity android:name=".EditLingkunganActivity"/>
-        <activity android:name="EditProjectActivity"/>
-        <activity android:name="EditCatatanActivity"/>
-
-
-
-
-
-
+        <activity android:name=".EditLingkunganActivity" />
+        <activity android:name=".EditProjectActivity" />
+        <activity android:name=".EditCatatanActivity" />
+        <activity android:name=".TransaksiHasilActivity" />
+        <activity android:name=".EditTransaksiActivity" />
+        <activity android:name=".kinerjaPerangkatLunakActivity" />
 
     </application>
+
 </manifest>

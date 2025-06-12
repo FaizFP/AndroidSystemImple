@@ -9,11 +9,8 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -36,16 +33,36 @@ fun ProjectHasilScreen() {
 
     val projectList by viewModel.projects.observeAsState(emptyList())
 
+    var selectedFilter by remember { mutableStateOf("Semua") }
+    val filterOptions = listOf("Semua", "Model", "Deskripsi")
+
     Surface(modifier = Modifier.fillMaxSize(), color = Color(0xFF2F3E2F)) {
         Column(modifier = Modifier
             .fillMaxSize()
             .padding(16.dp)) {
+
             Text("Daftar Proyek", fontSize = 20.sp, color = Color.White)
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            // Dropdown menu seperti di LingkunganScreen
+            Box(
+                modifier = Modifier.fillMaxWidth(),
+                contentAlignment = Alignment.CenterEnd
+            ) {
+                ProjectFilterMenu(
+                    options = filterOptions,
+                    selectedOption = selectedFilter,
+                    onOptionSelected = { selectedFilter = it }
+                )
+            }
+
+            Spacer(modifier = Modifier.height(8.dp))
 
             if (projectList.isEmpty()) {
                 Text("Belum ada data proyek.", color = Color.White)
             } else {
-                // Header Tabel
+                // Header
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -54,12 +71,14 @@ fun ProjectHasilScreen() {
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
                     Text("Nama", color = Color.White, modifier = Modifier.weight(1f))
-                    Text("Model", color = Color.White, modifier = Modifier.weight(1f))
-                    Text("Deskripsi", color = Color.White, modifier = Modifier.weight(2f))
+                    if (selectedFilter == "Semua" || selectedFilter == "Model")
+                        Text("Model", color = Color.White, modifier = Modifier.weight(1f))
+                    if (selectedFilter == "Semua" || selectedFilter == "Deskripsi")
+                        Text("Deskripsi", color = Color.White, modifier = Modifier.weight(2f))
                     Spacer(modifier = Modifier.width(50.dp))
                 }
 
-                HorizontalDivider(color = Color.White)
+                Divider(color = Color.White)
 
                 LazyColumn(modifier = Modifier.weight(1f)) {
                     items(projectList) { project: ProjectEntitity ->
@@ -70,9 +89,12 @@ fun ProjectHasilScreen() {
                                     .padding(vertical = 8.dp),
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
-                                Text(text = project.name, color = Color.White, modifier = Modifier.weight(1f))
-                                Text(text = project.model, color = Color.White, modifier = Modifier.weight(1f))
-                                Text(text = project.description, color = Color.White, modifier = Modifier.weight(2f))
+                                Text(project.name, color = Color.White, modifier = Modifier.weight(1f))
+
+                                if (selectedFilter == "Semua" || selectedFilter == "Model")
+                                    Text(project.model, color = Color.White, modifier = Modifier.weight(1f))
+                                if (selectedFilter == "Semua" || selectedFilter == "Deskripsi")
+                                    Text(project.description, color = Color.White, modifier = Modifier.weight(2f))
                             }
 
                             Row(
@@ -103,7 +125,7 @@ fun ProjectHasilScreen() {
                                 )
                             }
 
-                            HorizontalDivider(color = Color.White.copy(alpha = 0.2f))
+                            Divider(color = Color.White.copy(alpha = 0.2f))
                         }
                     }
                 }
@@ -140,6 +162,41 @@ fun ProjectHasilScreen() {
     }
 }
 
+@Composable
+fun ProjectFilterMenu(
+    options: List<String>,
+    selectedOption: String,
+    onOptionSelected: (String) -> Unit
+) {
+    var expanded by remember { mutableStateOf(false) }
+
+    Box {
+        Button(
+            onClick = { expanded = true },
+            colors = ButtonDefaults.buttonColors(
+                containerColor = Color.White,
+                contentColor = Color.Black
+            )
+        ) {
+            Text(selectedOption)
+        }
+
+        DropdownMenu(
+            expanded = expanded,
+            onDismissRequest = { expanded = false }
+        ) {
+            options.forEach { option ->
+                DropdownMenuItem(
+                    text = { Text(option) },
+                    onClick = {
+                        onOptionSelected(option)
+                        expanded = false
+                    }
+                )
+            }
+        }
+    }
+}
 
 @Composable
 fun RoundedNextButton(text: String, onClick: () -> Unit) {

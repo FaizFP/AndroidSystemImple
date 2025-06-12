@@ -86,4 +86,22 @@ dependencies {
     implementation(libs.androidx.lifecycle.viewmodel.compose)
     implementation(libs.androidx.lifecycle.runtime.compose)
 
+    // CameraX core & Compose
+    implementation("androidx.camera:camera-core:1.4.2")
+    implementation("androidx.camera:camera-camera2:1.4.2")
+    implementation("androidx.camera:camera-lifecycle:1.4.2")
+    implementation("androidx.camera:camera-view:1.4.2")
+    implementation("androidx.camera:camera-extensions:1.4.2")
+    implementation("androidx.camera:camera-compose:1.5.0-beta01") // preview via Compose :contentReference[oaicite:5]{index=5}
+    implementation ("androidx.activity:activity-compose:1.7.2")
+
+    // CameraX PreviewView (gunakan AndroidView)
+    implementation("androidx.camera:camera-view:1.3.1")
+
+    // Compose Material core
+    implementation ("androidx.compose.material:material:<compose_version>")
+
+    // Material Icons Extended (untuk Icons.Filled dan sejenisnya)
+    implementation ("androidx.compose.material:material-icons-extended:<compose_version>")
 }
+
