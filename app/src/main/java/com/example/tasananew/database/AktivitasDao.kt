@@ -1,5 +1,5 @@
 package com.example.tasananew.database
-
+import androidx.room.Dao
 import androidx.room.*
 
 @Dao

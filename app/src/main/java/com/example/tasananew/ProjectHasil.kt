@@ -2,7 +2,6 @@ package com.example.tasananew
 
 import android.app.Application
 import android.content.Intent
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -16,7 +15,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -32,9 +30,9 @@ fun ProjectHasilScreen() {
     val viewModel: ProjectViewModel = viewModel(factory = factory)
 
     val projectList by viewModel.projects.observeAsState(emptyList())
-
-    var selectedFilter by remember { mutableStateOf("Semua") }
-    val filterOptions = listOf("Semua", "Model", "Deskripsi")
+    var projectSelectedFilter by remember { mutableStateOf("Semua") }
+    val projectFilterOptions = listOf("Semua", "Model", "Deskripsi")
+    var projectToDelete by remember { mutableStateOf<ProjectEntitity?>(null) }
 
     Surface(modifier = Modifier.fillMaxSize(), color = Color(0xFF2F3E2F)) {
         Column(modifier = Modifier
@@ -45,15 +43,14 @@ fun ProjectHasilScreen() {
 
             Spacer(modifier = Modifier.height(8.dp))
 
-            // Dropdown menu seperti di LingkunganScreen
             Box(
                 modifier = Modifier.fillMaxWidth(),
                 contentAlignment = Alignment.CenterEnd
             ) {
-                ProjectFilterMenu(
-                    options = filterOptions,
-                    selectedOption = selectedFilter,
-                    onOptionSelected = { selectedFilter = it }
+                ProjectFilterDropdownMenu(
+                    options = projectFilterOptions,
+                    selectedOption = projectSelectedFilter,
+                    onOptionSelected = { projectSelectedFilter = it }
                 )
             }
 
@@ -62,7 +59,6 @@ fun ProjectHasilScreen() {
             if (projectList.isEmpty()) {
                 Text("Belum ada data proyek.", color = Color.White)
             } else {
-                // Header
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -71,11 +67,14 @@ fun ProjectHasilScreen() {
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
                     Text("Nama", color = Color.White, modifier = Modifier.weight(1f))
-                    if (selectedFilter == "Semua" || selectedFilter == "Model")
+
+                    if (projectSelectedFilter == "Semua" || projectSelectedFilter == "Model")
                         Text("Model", color = Color.White, modifier = Modifier.weight(1f))
-                    if (selectedFilter == "Semua" || selectedFilter == "Deskripsi")
+
+                    if (projectSelectedFilter == "Semua" || projectSelectedFilter == "Deskripsi")
                         Text("Deskripsi", color = Color.White, modifier = Modifier.weight(2f))
-                    Spacer(modifier = Modifier.width(50.dp))
+
+                    Spacer(modifier = Modifier.width(120.dp))
                 }
 
                 Divider(color = Color.White)
@@ -91,9 +90,10 @@ fun ProjectHasilScreen() {
                             ) {
                                 Text(project.name, color = Color.White, modifier = Modifier.weight(1f))
 
-                                if (selectedFilter == "Semua" || selectedFilter == "Model")
+                                if (projectSelectedFilter == "Semua" || projectSelectedFilter == "Model")
                                     Text(project.model, color = Color.White, modifier = Modifier.weight(1f))
-                                if (selectedFilter == "Semua" || selectedFilter == "Deskripsi")
+
+                                if (projectSelectedFilter == "Semua" || projectSelectedFilter == "Deskripsi")
                                     Text(project.description, color = Color.White, modifier = Modifier.weight(2f))
                             }
 
@@ -103,26 +103,19 @@ fun ProjectHasilScreen() {
                                     .padding(bottom = 8.dp),
                                 horizontalArrangement = Arrangement.End
                             ) {
-                                Text(
-                                    "Edit",
-                                    color = Color.Cyan,
-                                    modifier = Modifier
-                                        .padding(end = 16.dp)
-                                        .clickable {
-                                            val intent = Intent(context, EditProjectActivity::class.java)
-                                            intent.putExtra("name", project.name)
-                                            intent.putExtra("model", project.model)
-                                            intent.putExtra("description", project.description)
-                                            context.startActivity(intent)
-                                        }
-                                )
-                                Text(
-                                    "Delete",
-                                    color = Color.Red,
-                                    modifier = Modifier.clickable {
-                                        viewModel.deleteProject(project)
-                                    }
-                                )
+                                Text("Edit", color = Color.Cyan, modifier = Modifier
+                                    .padding(end = 16.dp)
+                                    .clickable {
+                                        val intent = Intent(context, EditProjectActivity::class.java)
+                                        intent.putExtra("name", project.name)
+                                        intent.putExtra("model", project.model)
+                                        intent.putExtra("description", project.description)
+                                        context.startActivity(intent)
+                                    })
+
+                                Text("Delete", color = Color.Red, modifier = Modifier.clickable {
+                                    projectToDelete = project
+                                })
                             }
 
                             Divider(color = Color.White.copy(alpha = 0.2f))
@@ -131,45 +124,94 @@ fun ProjectHasilScreen() {
                 }
             }
 
-            RoundedNextButton("ADD PROJEK") {
-                context.startActivity(Intent(context, ProjectActivity::class.java))
+            Spacer(modifier = Modifier.height(16.dp))
+
+            Button(
+                onClick = { viewModel.fetchProjectAndActivityFromApi() },
+                modifier = Modifier.fillMaxWidth().height(50.dp),
+                shape = RoundedCornerShape(12.dp),
+                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF4CAF50))
+            ) {
+                Text("FETCH DATA API", color = Color.White, fontSize = 16.sp)
             }
 
+            Spacer(modifier = Modifier.height(12.dp))
+
+            Button(
+                onClick = { context.startActivity(Intent(context, ProjectActivity::class.java)) },
+                modifier = Modifier.fillMaxWidth().height(50.dp),
+                shape = RoundedCornerShape(12.dp),
+                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF4CAF50))
+            ) {
+                Text("ADD", color = Color.White, fontSize = 16.sp)
+            }
+
+            Spacer(modifier = Modifier.height(20.dp))
+
+            // GANTI ICON KERTAS dengan TULISAN MENU
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(70.dp)
-                    .padding(top = 16.dp)
-                    .background(Color.Gray, shape = RoundedCornerShape(12.dp)),
+                    .background(Color.Gray, shape = RoundedCornerShape(12.dp))
+                    .clickable {
+                        context.startActivity(Intent(context, ListActivity::class.java))
+                    },
                 contentAlignment = Alignment.Center
             ) {
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.Center
-                ) {
-                    Image(
-                        painter = painterResource(id = R.drawable.kertas),
-                        contentDescription = "Menu Kertas",
-                        modifier = Modifier
-                            .size(50.dp)
-                            .clickable {
-                                context.startActivity(Intent(context, ListActivity::class.java))
-                            }
-                    )
-                }
+                Text(
+                    text = "MENU",
+                    color = Color.White,
+                    fontSize = 20.sp
+                )
             }
+
+            Spacer(modifier = Modifier.height(20.dp))
+        }
+
+        // AlertDialog Konfirmasi Hapus
+        projectToDelete?.let { project ->
+            AlertDialog(
+                onDismissRequest = { projectToDelete = null },
+                title = {
+                    Text("Konfirmasi Hapus", color = Color.White, fontSize = 20.sp)
+                },
+                text = {
+                    Text("Apakah kamu yakin ingin menghapus data ini?", color = Color.White, fontSize = 16.sp)
+                },
+                confirmButton = {
+                    TextButton(
+                        onClick = {
+                            viewModel.deleteProject(project)
+                            projectToDelete = null
+                        },
+                        colors = ButtonDefaults.textButtonColors(contentColor = Color.White)
+                    ) {
+                        Text("YA", fontSize = 16.sp)
+                    }
+                },
+                dismissButton = {
+                    TextButton(
+                        onClick = { projectToDelete = null },
+                        colors = ButtonDefaults.textButtonColors(contentColor = Color.White)
+                    ) {
+                        Text("BATAL", fontSize = 16.sp)
+                    }
+                },
+                containerColor = Color(0xFF333D2E),
+                shape = RoundedCornerShape(12.dp)
+            )
         }
     }
 }
 
 @Composable
-fun ProjectFilterMenu(
+fun ProjectFilterDropdownMenu(
     options: List<String>,
     selectedOption: String,
     onOptionSelected: (String) -> Unit
 ) {
     var expanded by remember { mutableStateOf(false) }
-
     Box {
         Button(
             onClick = { expanded = true },
@@ -180,7 +222,6 @@ fun ProjectFilterMenu(
         ) {
             Text(selectedOption)
         }
-
         DropdownMenu(
             expanded = expanded,
             onDismissRequest = { expanded = false }
@@ -195,24 +236,5 @@ fun ProjectFilterMenu(
                 )
             }
         }
-    }
-}
-
-@Composable
-fun RoundedNextButton(text: String, onClick: () -> Unit) {
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = 5.dp)
-            .clickable { onClick() }
-            .background(Color.LightGray, shape = RoundedCornerShape(50)),
-        contentAlignment = Alignment.Center
-    ) {
-        Text(
-            text = text,
-            fontSize = 16.sp,
-            color = Color.Black,
-            modifier = Modifier.padding(vertical = 12.dp, horizontal = 24.dp)
-        )
     }
 }

@@ -16,6 +16,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.tasananew.database.AktivitasEntity
@@ -81,7 +82,7 @@ class InputAktivitasActivity : ComponentActivity() {
                 .padding(16.dp)
         ) {
             Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
-                Text("FORM AKTIVITAS", fontSize = 24.sp, color = Color.White)
+                Text("AKTIVITAS", fontSize = 24.sp, fontWeight = FontWeight.Bold, color = Color.White)
             }
 
             Spacer(modifier = Modifier.height(16.dp))
@@ -92,7 +93,7 @@ class InputAktivitasActivity : ComponentActivity() {
                 colors = CardDefaults.cardColors(containerColor = Color(0xFF333D2E))
             ) {
                 Column(modifier = Modifier.padding(16.dp)) {
-                    Text("Pilih Project", color = Color.White)
+                    Text("Nama Project", color = Color.White)
                     ProjectDropdownMenuBox(selected = selectedProjectForm, options = projectOptionsForm)
 
                     Spacer(modifier = Modifier.height(16.dp))

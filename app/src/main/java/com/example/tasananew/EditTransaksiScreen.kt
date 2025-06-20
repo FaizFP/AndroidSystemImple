@@ -20,6 +20,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.tasananew.database.TransaksiEntity
@@ -80,7 +81,7 @@ fun EditTransaksiScreen(
             .padding(16.dp)
     ) {
         Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
-            Text("EDIT TRANSAKSI", fontSize = 24.sp, color = Color.White)
+            Text("TRANSAKSI", fontSize = 24.sp, fontWeight = FontWeight.Bold,color = Color.White)
         }
 
         Spacer(modifier = Modifier.height(16.dp))

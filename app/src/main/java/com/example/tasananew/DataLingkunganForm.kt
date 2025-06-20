@@ -80,7 +80,7 @@ fun LingkunganInputScreen(
                 .wrapContentHeight(),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Text("Input Data Lingkungan", fontSize = 20.sp, fontWeight = FontWeight.Bold, color = Color.White)
+            Text("Data Lingkungan", fontSize = 20.sp, fontWeight = FontWeight.Bold, color = Color.White)
             Spacer(modifier = Modifier.height(16.dp))
 
             Text("Nama Project", modifier = Modifier.align(Alignment.Start), color = Color.White)

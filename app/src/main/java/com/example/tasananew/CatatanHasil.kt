@@ -2,7 +2,6 @@ package com.example.tasananew
 
 import android.app.Application
 import android.content.Intent
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -16,7 +15,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -36,6 +34,8 @@ fun CatatanHasilScreen() {
     var selectedFilter by remember { mutableStateOf("Semua") }
     val filterOptions = listOf("Semua", "Saran", "Kategori", "Status", "Mulai", "Selesai", "Pemangku", "Peran")
     var dropdownExpanded by remember { mutableStateOf(false) }
+
+    var catatanToDelete by remember { mutableStateOf<CatatanEntitiy?>(null) }
 
     Surface(modifier = Modifier.fillMaxSize(), color = Color(0xFF2F3E2F)) {
         Column(modifier = Modifier.fillMaxSize().padding(16.dp)) {
@@ -159,7 +159,7 @@ fun CatatanHasilScreen() {
                                     "Delete",
                                     color = Color.Red,
                                     modifier = Modifier.clickable {
-                                        viewModel.deleteCatatan(catatan)
+                                        catatanToDelete = catatan
                                     }
                                 )
                             }
@@ -182,29 +182,60 @@ fun CatatanHasilScreen() {
                 shape = RoundedCornerShape(12.dp),
                 colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF4CAF50))
             ) {
-                Text("ADD CATATAN", color = Color.White, fontSize = 16.sp)
+                Text("ADD", color = Color.White, fontSize = 16.sp)
             }
 
             Spacer(modifier = Modifier.height(12.dp))
 
-            // Bagian menu bawah hanya menampilkan ikon di tengah
+            // 🔁 Ganti ikon dengan tulisan MENU
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(70.dp)
-                    .background(Color.Gray, shape = RoundedCornerShape(12.dp)),
+                    .background(Color.Gray, shape = RoundedCornerShape(12.dp))
+                    .clickable {
+                        context.startActivity(Intent(context, ListActivity::class.java))
+                    },
                 contentAlignment = Alignment.Center
             ) {
-                Image(
-                    painter = painterResource(id = R.drawable.kertas),
-                    contentDescription = "Menu Kertas",
-                    modifier = Modifier
-                        .size(40.dp)
-                        .clickable {
-                            context.startActivity(Intent(context, ListActivity::class.java))
-                        }
-                )
+                Text("MENU", color = Color.White, fontSize = 20.sp)
             }
+
+            Spacer(modifier = Modifier.height(12.dp))
+        }
+
+        // AlertDialog konfirmasi hapus
+        catatanToDelete?.let { catatan ->
+            AlertDialog(
+                onDismissRequest = { catatanToDelete = null },
+                title = {
+                    Text("Konfirmasi Hapus", color = Color.White, fontSize = 20.sp)
+                },
+                text = {
+                    Text("Apakah kamu yakin ingin menghapus data ini?", color = Color.White, fontSize = 16.sp)
+                },
+                confirmButton = {
+                    TextButton(
+                        onClick = {
+                            viewModel.deleteCatatan(catatan)
+                            catatanToDelete = null
+                        },
+                        colors = ButtonDefaults.textButtonColors(contentColor = Color.White)
+                    ) {
+                        Text("YA", fontSize = 16.sp)
+                    }
+                },
+                dismissButton = {
+                    TextButton(
+                        onClick = { catatanToDelete = null },
+                        colors = ButtonDefaults.textButtonColors(contentColor = Color.White)
+                    ) {
+                        Text("BATAL", fontSize = 16.sp)
+                    }
+                },
+                containerColor = Color(0xFF333D2E),
+                shape = RoundedCornerShape(12.dp)
+            )
         }
     }
 }

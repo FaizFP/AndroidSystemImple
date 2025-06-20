@@ -74,7 +74,7 @@ fun EditProjectForm(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Text(
-                "EDIT PROJECT",
+                "PROJECT",
                 fontSize = 20.sp,
                 fontWeight = FontWeight.Bold,
                 color = Color.White

@@ -73,7 +73,7 @@ fun GeneratePdfScreen(viewModel: LaporanViewModel) {
                         .padding(12.dp)
                 ) {
                     Text(
-                        text = if (selectedProjectName.isEmpty()) "-- Pilih Project --" else selectedProjectName,
+                        text = if (selectedProjectName.isEmpty()) "Pilih Project" else selectedProjectName,
                         color = Color.White
                     )
                 }

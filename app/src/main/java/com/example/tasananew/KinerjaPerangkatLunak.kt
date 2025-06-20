@@ -1,7 +1,6 @@
 package com.example.tasananew
 
 import android.content.Intent
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -19,7 +18,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -88,8 +86,20 @@ fun KinerjaPerangkatLunakScreen() {
 
             Spacer(modifier = Modifier.height(24.dp))
 
-            // Menu bawah (box klik icon kertas)
-            CustomKinerjaClickableBox()
+            // Box menu bawah (text "MENU")
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(70.dp)
+                    .background(Color.Gray, shape = RoundedCornerShape(12.dp))
+                    .clickable {
+                        context.startActivity(Intent(context, ListActivity::class.java))
+                    },
+                contentAlignment = Alignment.Center
+            ) {
+                Text("MENU", color = Color.White, fontSize = 20.sp)
+            }
+
             Spacer(modifier = Modifier.height(20.dp))
         }
     }
@@ -156,26 +166,5 @@ fun MetricCard(metric: MetricItem) {
             )
             Text(text = metric.value, color = Color.Black)
         }
-    }
-}
-
-@Composable
-fun CustomKinerjaClickableBox() {
-    val context = LocalContext.current
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(70.dp)
-            .background(Color.Gray, RoundedCornerShape(12.dp))
-            .clickable {
-                context.startActivity(Intent(context, ListActivity::class.java))
-            },
-        contentAlignment = Alignment.Center
-    ) {
-        Image(
-            painter = painterResource(id = R.drawable.kertas),
-            contentDescription = "Menu Kertas",
-            modifier = Modifier.size(50.dp)
-        )
     }
 }

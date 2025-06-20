@@ -36,6 +36,8 @@ fun DataLingkunganHasilScreen() {
     var selectedLingkunganFilter by remember { mutableStateOf("Semua") }
     val lingkunganFilterOptions = listOf("Semua", "OS", "CPU", "RAM", "DB")
 
+    var lingkunganToDelete by remember { mutableStateOf<LingkunganEntity?>(null) }
+
     Surface(modifier = Modifier.fillMaxSize(), color = Color(0xFF2F3E2F)) {
         Column(modifier = Modifier.fillMaxSize().padding(16.dp)) {
 
@@ -123,7 +125,7 @@ fun DataLingkunganHasilScreen() {
                                     "Delete",
                                     color = Color.Red,
                                     modifier = Modifier.clickable {
-                                        viewModel.deleteLingkungan(item)
+                                        lingkunganToDelete = item
                                     }
                                 )
                             }
@@ -143,12 +145,11 @@ fun DataLingkunganHasilScreen() {
                 shape = RoundedCornerShape(12.dp),
                 colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF4CAF50))
             ) {
-                Text("ADD DATALINGKUNGAN", color = Color.White, fontSize = 16.sp)
+                Text("ADD", color = Color.White, fontSize = 16.sp)
             }
 
             Spacer(Modifier.height(20.dp))
 
-            // Box klik ke ListActivity
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -159,14 +160,48 @@ fun DataLingkunganHasilScreen() {
                     },
                 contentAlignment = Alignment.Center
             ) {
-                Image(
-                    painter = painterResource(id = R.drawable.kertas),
-                    contentDescription = "Menu Kertas",
-                    modifier = Modifier.size(50.dp)
+                Text(
+                    text = "MENU",
+                    color = Color.White,
+                    fontSize = 20.sp
                 )
             }
 
             Spacer(Modifier.height(20.dp))
+        }
+
+        // AlertDialog konfirmasi hapus
+        lingkunganToDelete?.let { item ->
+            AlertDialog(
+                onDismissRequest = { lingkunganToDelete = null },
+                title = {
+                    Text("Konfirmasi Hapus", color = Color.White, fontSize = 20.sp)
+                },
+                text = {
+                    Text("Apakah kamu yakin ingin menghapus data ini?", color = Color.White, fontSize = 16.sp)
+                },
+                confirmButton = {
+                    TextButton(
+                        onClick = {
+                            viewModel.deleteLingkungan(item)
+                            lingkunganToDelete = null
+                        },
+                        colors = ButtonDefaults.textButtonColors(contentColor = Color.White)
+                    ) {
+                        Text("YA", fontSize = 16.sp)
+                    }
+                },
+                dismissButton = {
+                    TextButton(
+                        onClick = { lingkunganToDelete = null },
+                        colors = ButtonDefaults.textButtonColors(contentColor = Color.White)
+                    ) {
+                        Text("BATAL", fontSize = 16.sp)
+                    }
+                },
+                containerColor = Color(0xFF333D2E),
+                shape = RoundedCornerShape(12.dp)
+            )
         }
     }
 }

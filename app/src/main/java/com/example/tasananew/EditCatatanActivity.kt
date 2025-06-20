@@ -15,6 +15,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.tasananew.database.AppDatabase
@@ -95,7 +96,7 @@ fun EditCatatanForm(
                 .width(300.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Text("Edit Catatan", fontSize = 20.sp, color = Color.White)
+            Text("Catatan Pemeliharaan", fontSize = 20.sp, fontWeight = FontWeight.Bold,color = Color.White)
             Spacer(modifier = Modifier.height(16.dp))
 
             OutlinedTextField(

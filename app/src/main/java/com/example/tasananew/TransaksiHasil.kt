@@ -15,13 +15,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.tasananew.database.TransaksiViewModel
 import com.example.tasananew.database.TransaksiViewModelFactory
-import androidx.compose.foundation.Image
+import com.example.tasananew.database.TransaksiEntity
 import java.io.File
 
 @Composable
@@ -33,6 +32,7 @@ fun TransaksiHasilScreen() {
 
     var selectedFilter by remember { mutableStateOf("Semua") }
     val filterOptions = listOf("Semua", "Deskripsi Data", "Foto/File")
+    var transaksiToDelete by remember { mutableStateOf<TransaksiEntity?>(null) }
 
     Surface(modifier = Modifier.fillMaxSize(), color = Color(0xFF2F3E2F)) {
         Column(modifier = Modifier.fillMaxSize().padding(16.dp)) {
@@ -42,7 +42,7 @@ fun TransaksiHasilScreen() {
 
             Box(
                 modifier = Modifier.fillMaxWidth(),
-                contentAlignment = Alignment.CenterEnd // posisi dropdown di kanan
+                contentAlignment = Alignment.CenterEnd
             ) {
                 FilterDropdownMenu(
                     options = filterOptions,
@@ -106,17 +106,20 @@ fun TransaksiHasilScreen() {
                                     .padding(bottom = 8.dp),
                                 horizontalArrangement = Arrangement.End
                             ) {
-                                Text("Edit", color = Color.Cyan, modifier = Modifier.padding(end = 16.dp).clickable {
-                                    Intent(context, EditTransaksiActivity::class.java).apply {
-                                        putExtra("id", transaksi.id)
-                                        putExtra("projectName", transaksi.projectName)
-                                        putExtra("inputData", transaksi.inputData)
-                                        putExtra("photoFileName", transaksi.photoFileName)
-                                        context.startActivity(this)
-                                    }
-                                })
+                                Text("Edit", color = Color.Cyan, modifier = Modifier
+                                    .padding(end = 16.dp)
+                                    .clickable {
+                                        Intent(context, EditTransaksiActivity::class.java).apply {
+                                            putExtra("id", transaksi.id)
+                                            putExtra("projectName", transaksi.projectName)
+                                            putExtra("inputData", transaksi.inputData)
+                                            putExtra("photoFileName", transaksi.photoFileName)
+                                            context.startActivity(this)
+                                        }
+                                    })
+
                                 Text("Delete", color = Color.Red, modifier = Modifier.clickable {
-                                    viewModel.deleteTransaksi(transaksi)
+                                    transaksiToDelete = transaksi
                                 })
                             }
                             Divider(color = Color.White.copy(alpha = 0.2f))
@@ -132,12 +135,42 @@ fun TransaksiHasilScreen() {
                 shape = RoundedCornerShape(12.dp),
                 colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF4CAF50))
             ) {
-                Text("ADD TRANSAKSI", color = Color.White, fontSize = 16.sp)
+                Text("ADD", color = Color.White, fontSize = 16.sp)
             }
 
             Spacer(Modifier.height(20.dp))
             CustomClickableBox()
             Spacer(Modifier.height(20.dp))
+        }
+
+        // AlertDialog konfirmasi hapus
+        transaksiToDelete?.let { transaksi ->
+            AlertDialog(
+                onDismissRequest = { transaksiToDelete = null },
+                title = { Text("Konfirmasi Hapus", color = Color.White, fontSize = 20.sp) },
+                text = { Text("Apakah kamu yakin ingin menghapus data ini?", color = Color.White, fontSize = 16.sp) },
+                confirmButton = {
+                    TextButton(
+                        onClick = {
+                            viewModel.deleteTransaksi(transaksi)
+                            transaksiToDelete = null
+                        },
+                        colors = ButtonDefaults.textButtonColors(contentColor = Color.White)
+                    ) {
+                        Text("YA", fontSize = 16.sp)
+                    }
+                },
+                dismissButton = {
+                    TextButton(
+                        onClick = { transaksiToDelete = null },
+                        colors = ButtonDefaults.textButtonColors(contentColor = Color.White)
+                    ) {
+                        Text("BATAL", fontSize = 16.sp)
+                    }
+                },
+                containerColor = Color(0xFF333D2E),
+                shape = RoundedCornerShape(12.dp)
+            )
         }
     }
 }
@@ -153,8 +186,8 @@ fun FilterDropdownMenu(
         Button(
             onClick = { expanded = true },
             colors = ButtonDefaults.buttonColors(
-                containerColor = Color.White,  // background putih
-                contentColor = Color.Black      // teks hitam
+                containerColor = Color.White,
+                contentColor = Color.Black
             )
         ) {
             Text(selectedOption)
@@ -189,10 +222,11 @@ fun CustomClickableBox() {
             },
         contentAlignment = Alignment.Center
     ) {
-        Image(
-            painter = painterResource(id = R.drawable.kertas),
-            contentDescription = "Menu Kertas",
-            modifier = Modifier.size(50.dp)
+
+        Text(
+            text = "MENU",
+            color = Color.White,
+            fontSize = 20.sp
         )
     }
 }

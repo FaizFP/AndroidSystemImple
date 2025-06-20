@@ -5,7 +5,6 @@ import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -17,10 +16,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.tooling.preview.Preview
 
 class ListActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -90,24 +88,13 @@ fun MainScreen(
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(70.dp)
-                    .background(Color.Gray, shape = RoundedCornerShape(12.dp)),
+                    .background(Color.Gray, shape = RoundedCornerShape(12.dp))
+                    .clickable {
+                        context.startActivity(Intent(context, MainActivity::class.java))
+                    },
                 contentAlignment = Alignment.Center
             ) {
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.Center
-                ) {
-                    Image(
-                        painter = painterResource(id = R.drawable.kertas),
-                        contentDescription = "Menu Kertas",
-                        modifier = Modifier
-                            .size(100.dp)
-                            .padding(end = 20.dp)
-                            .clickable {
-                                context.startActivity(Intent(context, MainActivity::class.java))
-                            }
-                    )
-                }
+                Text("DASHBOARD", fontSize = 20.sp, color = Color.White)
             }
         }
     }

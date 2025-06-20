@@ -2,7 +2,6 @@ package com.example.tasananew
 
 import android.app.Application
 import android.content.Intent
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -15,10 +14,9 @@ import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.tasananew.database.AktivitasViewModel
 import com.example.tasananew.database.AktivitasViewModelFactory
@@ -36,24 +34,20 @@ fun AktivitasHasilScreen() {
     val filterOptions = listOf("Semua", "Model", "Algoritma", "Hyperparam")
     var dropdownExpanded by remember { mutableStateOf(false) }
 
+    var aktivitasToDelete by remember { mutableStateOf<com.example.tasananew.database.AktivitasEntity?>(null) }
+
     Surface(modifier = Modifier.fillMaxSize(), color = Color(0xFF2F3E2F)) {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(16.dp)
-        ) {
+        Column(modifier = Modifier
+            .fillMaxSize()
+            .padding(16.dp)) {
 
             Text("Daftar Aktivitas", fontSize = 20.sp, color = Color.White)
             Spacer(modifier = Modifier.height(8.dp))
 
-            // Dropdown filter
             Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.CenterEnd) {
                 Button(
                     onClick = { dropdownExpanded = true },
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = Color.White,
-                        contentColor = Color.Black
-                    )
+                    colors = ButtonDefaults.buttonColors(containerColor = Color.White, contentColor = Color.Black)
                 ) {
                     Text(selectedFilter)
                 }
@@ -78,7 +72,6 @@ fun AktivitasHasilScreen() {
             if (aktivitasList.isEmpty()) {
                 Text("Belum ada data aktivitas.", color = Color.White)
             } else {
-                // Header Kolom
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -94,9 +87,9 @@ fun AktivitasHasilScreen() {
                     if (selectedFilter == "Semua" || selectedFilter == "Hyperparam")
                         Text("Hyperparam", color = Color.White, modifier = Modifier.weight(1f))
                 }
+
                 Divider(color = Color.White)
 
-                // Isi Tabel
                 LazyColumn(modifier = Modifier.weight(1f)) {
                     items(aktivitasList) { aktivitas ->
                         Column {
@@ -115,7 +108,6 @@ fun AktivitasHasilScreen() {
                                     Text(aktivitas.hyperparameters, color = Color.White, modifier = Modifier.weight(1f))
                             }
 
-                            // Tombol Edit dan Delete
                             Row(
                                 modifier = Modifier
                                     .fillMaxWidth()
@@ -138,14 +130,16 @@ fun AktivitasHasilScreen() {
                                             context.startActivity(intent)
                                         }
                                 )
+
                                 Text(
                                     "Delete",
                                     color = Color.Red,
                                     modifier = Modifier.clickable {
-                                        viewModel.deleteAktivitas(aktivitas)
+                                        aktivitasToDelete = aktivitas
                                     }
                                 )
                             }
+
                             Divider(color = Color.White.copy(alpha = 0.2f))
                         }
                     }
@@ -154,7 +148,6 @@ fun AktivitasHasilScreen() {
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Tombol Tambah Data
             Button(
                 onClick = {
                     context.startActivity(Intent(context, AktivitasActivity::class.java))
@@ -165,30 +158,60 @@ fun AktivitasHasilScreen() {
                 shape = RoundedCornerShape(12.dp),
                 colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF4CAF50))
             ) {
-                Text("ADD AKTIVITAS", color = Color.White, fontSize = 16.sp)
+                Text("ADD", color = Color.White, fontSize = 16.sp)
             }
 
             Spacer(modifier = Modifier.height(12.dp))
 
-            // Bagian menu bawah hanya menampilkan ikon di tengah dengan background abu-abu dan rounded corner
+            // ✅ Menu bawah dengan teks "MENU"
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(70.dp)
-                    .background(Color.Gray, shape = RoundedCornerShape(12.dp)),
+                    .background(Color.Gray, shape = RoundedCornerShape(12.dp))
+                    .clickable {
+                        context.startActivity(Intent(context, ListActivity::class.java))
+                    },
                 contentAlignment = Alignment.Center
             ) {
-                Image(
-                    painter = painterResource(id = R.drawable.kertas),
-                    contentDescription = "Menu Kertas",
-                    modifier = Modifier
-                        .size(40.dp)
-                        .clickable {
-                            // Ubah sesuai activity tujuan
-                            context.startActivity(Intent(context, ListActivity::class.java))
-                        }
-                )
+                Text("MENU", color = Color.White, fontSize = 20.sp)
             }
+
+            Spacer(modifier = Modifier.height(20.dp))
+        }
+
+        // ✅ Dialog Konfirmasi Hapus
+        aktivitasToDelete?.let { aktivitas ->
+            AlertDialog(
+                onDismissRequest = { aktivitasToDelete = null },
+                title = {
+                    Text("Konfirmasi Hapus", color = Color.White, fontSize = 20.sp)
+                },
+                text = {
+                    Text("Apakah kamu yakin ingin menghapus data ini?", color = Color.White, fontSize = 16.sp)
+                },
+                confirmButton = {
+                    TextButton(
+                        onClick = {
+                            viewModel.deleteAktivitas(aktivitas)
+                            aktivitasToDelete = null
+                        },
+                        colors = ButtonDefaults.textButtonColors(contentColor = Color.White)
+                    ) {
+                        Text("YA", fontSize = 16.sp)
+                    }
+                },
+                dismissButton = {
+                    TextButton(
+                        onClick = { aktivitasToDelete = null },
+                        colors = ButtonDefaults.textButtonColors(contentColor = Color.White)
+                    ) {
+                        Text("BATAL", fontSize = 16.sp)
+                    }
+                },
+                containerColor = Color(0xFF333D2E),
+                shape = RoundedCornerShape(12.dp)
+            )
         }
     }
 }
