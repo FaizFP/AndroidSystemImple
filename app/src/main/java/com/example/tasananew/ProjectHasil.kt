@@ -131,7 +131,7 @@ fun ProjectHasilScreen() {
                 }
             }
 
-            RoundedNextButton("ADD") {
+            RoundedNextButton("ADD PROJEK") {
                 context.startActivity(Intent(context, ProjectActivity::class.java))
             }
 

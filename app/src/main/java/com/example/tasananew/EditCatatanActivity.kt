@@ -4,11 +4,19 @@ import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.example.tasananew.database.AppDatabase
 import com.example.tasananew.database.CatatanEntitiy
 import kotlinx.coroutines.CoroutineScope
@@ -19,119 +27,221 @@ class EditCatatanActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        // Terima data dari intent, termasuk id primary key untuk update
+        // Ambil data dari intent
         val id = intent.getIntExtra("id", 0)
         val projectName = intent.getStringExtra("projectName") ?: ""
-        var suggest = intent.getStringExtra("suggest") ?: ""
-        var category = intent.getStringExtra("category") ?: ""
-        var status = intent.getStringExtra("status") ?: ""
-        var startDate = intent.getStringExtra("startDate") ?: ""
-        var endDate = intent.getStringExtra("endDate") ?: ""
-        var namaPemangkuKepentingan = intent.getStringExtra("namaPemangkuKepentingan") ?: ""
-        var namaPeran = intent.getStringExtra("namaPeran") ?: ""
+        val suggest = intent.getStringExtra("suggest") ?: ""
+        val category = intent.getStringExtra("category") ?: ""
+        val status = intent.getStringExtra("status") ?: ""
+        val startDate = intent.getStringExtra("startDate") ?: ""
+        val endDate = intent.getStringExtra("endDate") ?: ""
+        val namaPemangkuKepentingan = intent.getStringExtra("namaPemangkuKepentingan") ?: ""
+        val namaPeran = intent.getStringExtra("namaPeran") ?: ""
 
         setContent {
-            var suggestState by remember { mutableStateOf(suggest) }
-            var categoryState by remember { mutableStateOf(category) }
-            var statusState by remember { mutableStateOf(status) }
-            var startDateState by remember { mutableStateOf(startDate) }
-            var endDateState by remember { mutableStateOf(endDate) }
-            var namaPemangkuKepentinganState by remember { mutableStateOf(namaPemangkuKepentingan) }
-            var namaPeranState by remember { mutableStateOf(namaPeran) }
+            MaterialTheme {
+                Surface(
+                    modifier = Modifier.fillMaxSize(),
+                    color = Color(0xFF6F765C)
+                ) {
+                    EditCatatanForm(
+                        id = id,
+                        projectName = projectName,
+                        initialSuggest = suggest,
+                        initialCategory = category,
+                        initialStatus = status,
+                        initialStartDate = startDate,
+                        initialEndDate = endDate,
+                        initialPemangkuKepentingan = namaPemangkuKepentingan,
+                        initialPeran = namaPeran
+                    )
+                }
+            }
+        }
+    }
+}
 
-            Column(
-                modifier = Modifier
-                    .padding(16.dp)
-                    .fillMaxSize()
-            ) {
-                Text("Edit Catatan", style = MaterialTheme.typography.headlineSmall)
+@Composable
+fun EditCatatanForm(
+    id: Int,
+    projectName: String,
+    initialSuggest: String,
+    initialCategory: String,
+    initialStatus: String,
+    initialStartDate: String,
+    initialEndDate: String,
+    initialPemangkuKepentingan: String,
+    initialPeran: String
+) {
+    var suggest by remember { mutableStateOf(initialSuggest) }
+    var category by remember { mutableStateOf(initialCategory) }
+    var status by remember { mutableStateOf(initialStatus) }
+    var startDate by remember { mutableStateOf(initialStartDate) }
+    var endDate by remember { mutableStateOf(initialEndDate) }
+    var pemangkuKepentingan by remember { mutableStateOf(initialPemangkuKepentingan) }
+    var peran by remember { mutableStateOf(initialPeran) }
+    val context = LocalContext.current
 
-                OutlinedTextField(
-                    value = projectName,
-                    onValueChange = {},
-                    label = { Text("Proyek (tidak bisa diubah)") },
-                    modifier = Modifier.fillMaxWidth(),
-                    enabled = false
-                )
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(16.dp),
+        contentAlignment = Alignment.Center
+    ) {
+        Column(
+            modifier = Modifier
+                .background(Color(0xFF333D2E), RoundedCornerShape(16.dp))
+                .padding(24.dp)
+                .width(300.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Text("Edit Catatan", fontSize = 20.sp, color = Color.White)
+            Spacer(modifier = Modifier.height(16.dp))
 
-                OutlinedTextField(
-                    value = suggestState,
-                    onValueChange = { suggestState = it },
-                    label = { Text("Saran") },
-                    modifier = Modifier.fillMaxWidth()
-                )
+            OutlinedTextField(
+                value = suggest,
+                onValueChange = { suggest = it },
+                label = { Text("Suggest", color = Color.White) },
+                colors = OutlinedTextFieldDefaults.colors(
+                    focusedContainerColor = Color.DarkGray,
+                    unfocusedContainerColor = Color.DarkGray,
+                    focusedTextColor = Color.White,
+                    unfocusedTextColor = Color.White,
+                    focusedLabelColor = Color.White,
+                    unfocusedLabelColor = Color.White
+                ),
+                modifier = Modifier.fillMaxWidth()
+            )
 
-                OutlinedTextField(
-                    value = categoryState,
-                    onValueChange = { categoryState = it },
-                    label = { Text("Kategori") },
-                    modifier = Modifier.fillMaxWidth()
-                )
+            Spacer(modifier = Modifier.height(8.dp))
 
-                OutlinedTextField(
-                    value = statusState,
-                    onValueChange = { statusState = it },
-                    label = { Text("Status") },
-                    modifier = Modifier.fillMaxWidth()
-                )
+            OutlinedTextField(
+                value = category,
+                onValueChange = { category = it },
+                label = { Text("Category", color = Color.White) },
+                colors = OutlinedTextFieldDefaults.colors(
+                    focusedContainerColor = Color.DarkGray,
+                    unfocusedContainerColor = Color.DarkGray,
+                    focusedTextColor = Color.White,
+                    unfocusedTextColor = Color.White,
+                    focusedLabelColor = Color.White,
+                    unfocusedLabelColor = Color.White
+                ),
+                modifier = Modifier.fillMaxWidth()
+            )
 
-                OutlinedTextField(
-                    value = startDateState,
-                    onValueChange = { startDateState = it },
-                    label = { Text("Mulai") },
-                    modifier = Modifier.fillMaxWidth()
-                )
+            Spacer(modifier = Modifier.height(8.dp))
 
-                OutlinedTextField(
-                    value = endDateState,
-                    onValueChange = { endDateState = it },
-                    label = { Text("Selesai") },
-                    modifier = Modifier.fillMaxWidth()
-                )
+            OutlinedTextField(
+                value = status,
+                onValueChange = { status = it },
+                label = { Text("Status", color = Color.White) },
+                colors = OutlinedTextFieldDefaults.colors(
+                    focusedContainerColor = Color.DarkGray,
+                    unfocusedContainerColor = Color.DarkGray,
+                    focusedTextColor = Color.White,
+                    unfocusedTextColor = Color.White,
+                    focusedLabelColor = Color.White,
+                    unfocusedLabelColor = Color.White
+                ),
+                modifier = Modifier.fillMaxWidth()
+            )
 
-                OutlinedTextField(
-                    value = namaPemangkuKepentinganState,
-                    onValueChange = { namaPemangkuKepentinganState = it },
-                    label = { Text("Pemangku Kepentingan") },
-                    modifier = Modifier.fillMaxWidth()
-                )
+            Spacer(modifier = Modifier.height(8.dp))
 
-                OutlinedTextField(
-                    value = namaPeranState,
-                    onValueChange = { namaPeranState = it },
-                    label = { Text("Peran") },
-                    modifier = Modifier.fillMaxWidth()
-                )
+            OutlinedTextField(
+                value = startDate,
+                onValueChange = { startDate = it },
+                label = { Text("Start Date", color = Color.White) },
+                colors = OutlinedTextFieldDefaults.colors(
+                    focusedContainerColor = Color.DarkGray,
+                    unfocusedContainerColor = Color.DarkGray,
+                    focusedTextColor = Color.White,
+                    unfocusedTextColor = Color.White,
+                    focusedLabelColor = Color.White,
+                    unfocusedLabelColor = Color.White
+                ),
+                modifier = Modifier.fillMaxWidth()
+            )
 
-                Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(8.dp))
 
-                Button(onClick = {
+            OutlinedTextField(
+                value = endDate,
+                onValueChange = { endDate = it },
+                label = { Text("End Date", color = Color.White) },
+                colors = OutlinedTextFieldDefaults.colors(
+                    focusedContainerColor = Color.DarkGray,
+                    unfocusedContainerColor = Color.DarkGray,
+                    focusedTextColor = Color.White,
+                    unfocusedTextColor = Color.White,
+                    focusedLabelColor = Color.White,
+                    unfocusedLabelColor = Color.White
+                ),
+                modifier = Modifier.fillMaxWidth()
+            )
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            OutlinedTextField(
+                value = pemangkuKepentingan,
+                onValueChange = { pemangkuKepentingan = it },
+                label = { Text("Nama Pemangku Kepentingan", color = Color.White) },
+                colors = OutlinedTextFieldDefaults.colors(
+                    focusedContainerColor = Color.DarkGray,
+                    unfocusedContainerColor = Color.DarkGray,
+                    focusedTextColor = Color.White,
+                    unfocusedTextColor = Color.White,
+                    focusedLabelColor = Color.White,
+                    unfocusedLabelColor = Color.White
+                ),
+                modifier = Modifier.fillMaxWidth()
+            )
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            OutlinedTextField(
+                value = peran,
+                onValueChange = { peran = it },
+                label = { Text("Nama Peran", color = Color.White) },
+                colors = OutlinedTextFieldDefaults.colors(
+                    focusedContainerColor = Color.DarkGray,
+                    unfocusedContainerColor = Color.DarkGray,
+                    focusedTextColor = Color.White,
+                    unfocusedTextColor = Color.White,
+                    focusedLabelColor = Color.White,
+                    unfocusedLabelColor = Color.White
+                ),
+                modifier = Modifier.fillMaxWidth()
+            )
+
+            Spacer(modifier = Modifier.height(20.dp))
+
+            Button(
+                onClick = {
                     CoroutineScope(Dispatchers.IO).launch {
-                        val dao = AppDatabase.getDatabase(applicationContext).catatanDao()
-
-                        // Buat objek CatatanEntitiy dengan id untuk update
-                        val catatan = CatatanEntitiy(
+                        val dao = AppDatabase.getDatabase(context).catatanDao()
+                        val updatedCatatan = CatatanEntitiy(
                             id = id,
                             projectName = projectName,
-                            suggest = suggestState,
-                            category = categoryState,
-                            status = statusState,
-                            startDate = startDateState,
-                            endDate = endDateState,
-                            namaPemangkuKepentingan = namaPemangkuKepentinganState,
-                            namaPeran = namaPeranState
+                            suggest = suggest,
+                            category = category,
+                            status = status,
+                            startDate = startDate,
+                            endDate = endDate,
+                            namaPemangkuKepentingan = pemangkuKepentingan,
+                            namaPeran = peran
                         )
-
-                        dao.updateCatatan(catatan)
-
-                        runOnUiThread {
-                            Toast.makeText(applicationContext, "Catatan berhasil diperbarui", Toast.LENGTH_SHORT).show()
-                            finish()
+                        dao.updateCatatan(updatedCatatan)
+                        CoroutineScope(Dispatchers.Main).launch {
+                            Toast.makeText(context, "Catatan diperbarui", Toast.LENGTH_SHORT).show()
                         }
                     }
-                }) {
-                    Text("Simpan")
-                }
+                },
+                modifier = Modifier.fillMaxWidth(),
+                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF4CAF50))
+            ) {
+                Text("SIMPAN", color = Color.White)
             }
         }
     }

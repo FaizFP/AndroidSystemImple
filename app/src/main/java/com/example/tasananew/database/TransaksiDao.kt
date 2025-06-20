@@ -34,6 +34,10 @@ interface TransaksiDao {
     @Query("SELECT * FROM transaksi WHERE projectName = :projectName")
     fun getTransaksiByProjectName(projectName: String): Flow<List<TransaksiEntity>>
 
+    @Query("SELECT * FROM transaksi WHERE projectName = :projectName LIMIT 1")
+    suspend fun getTransaksiByProject(projectName: String): TransaksiEntity?
+
+
     // Menghapus semua data transaksi yang terkait dengan nama project tertentu.
     @Query("DELETE FROM transaksi WHERE projectName = :projectName")
     suspend fun deleteTransaksiByProject(projectName: String)

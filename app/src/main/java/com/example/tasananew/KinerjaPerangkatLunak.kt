@@ -1,5 +1,9 @@
 package com.example.tasananew
 
+import android.content.Intent
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
@@ -14,25 +18,26 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.unit.sp
 import com.example.tasananew.database.AppDatabase
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
-// Data class untuk item metric
+// Data class untuk metric
 data class MetricItem(val title: String, val value: String, val icon: ImageVector)
 
 @Composable
 fun KinerjaPerangkatLunakScreen() {
     val context = LocalContext.current
 
-    // State untuk pilihan dropdown dan list opsi project
+    // Dropdown project
     val selectedProject = remember { mutableStateOf("") }
     val projectOptions = remember { mutableStateListOf<String>() }
 
-    // Load project list dari Room database saat screen muncul
     LaunchedEffect(Unit) {
         val db = AppDatabase.getDatabase(context)
         val projects = withContext(Dispatchers.IO) {
@@ -45,6 +50,7 @@ fun KinerjaPerangkatLunakScreen() {
         }
     }
 
+    // Daftar metric
     val metrics = listOf(
         MetricItem("Respon Time", "10 Ms", Icons.Filled.AccessTime),
         MetricItem("Uptime", "90 %", Icons.Filled.SignalCellular4Bar),
@@ -54,7 +60,7 @@ fun KinerjaPerangkatLunakScreen() {
 
     Surface(
         modifier = Modifier.fillMaxSize(),
-        color = Color(0xFF2F3E2F) // Dark green background
+        color = Color(0xFF2F3E2F)
     ) {
         Column(
             modifier = Modifier
@@ -62,7 +68,11 @@ fun KinerjaPerangkatLunakScreen() {
                 .padding(16.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            // Dropdown pilih project dari database dengan background putih
+            Text("Kinerja Perangkat Lunak", fontSize = 20.sp, color = Color.White)
+
+            Spacer(modifier = Modifier.height(12.dp))
+
+            // Dropdown project
             DropdownSelectorMutable(
                 selected = selectedProject,
                 options = projectOptions
@@ -70,11 +80,17 @@ fun KinerjaPerangkatLunakScreen() {
 
             Spacer(modifier = Modifier.height(24.dp))
 
-            // Metric cards
+            // Tampilkan card metric
             metrics.forEach {
                 MetricCard(metric = it)
                 Spacer(modifier = Modifier.height(16.dp))
             }
+
+            Spacer(modifier = Modifier.height(24.dp))
+
+            // Menu bawah (box klik icon kertas)
+            CustomKinerjaClickableBox()
+            Spacer(modifier = Modifier.height(20.dp))
         }
     }
 }
@@ -87,7 +103,7 @@ fun DropdownSelectorMutable(selected: MutableState<String>, options: List<String
         OutlinedButton(
             onClick = { expanded = true },
             colors = ButtonDefaults.outlinedButtonColors(
-                backgroundColor = Color.White, // Ubah jadi putih
+                backgroundColor = Color.White,
                 contentColor = Color.Black
             )
         ) {
@@ -119,7 +135,7 @@ fun MetricCard(metric: MetricItem) {
         modifier = Modifier
             .fillMaxWidth()
             .height(120.dp),
-        backgroundColor = Color(0xFFE0E0E0), // Light gray
+        backgroundColor = Color(0xFFE0E0E0),
         shape = RoundedCornerShape(12.dp),
         elevation = 6.dp
     ) {
@@ -140,5 +156,26 @@ fun MetricCard(metric: MetricItem) {
             )
             Text(text = metric.value, color = Color.Black)
         }
+    }
+}
+
+@Composable
+fun CustomKinerjaClickableBox() {
+    val context = LocalContext.current
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(70.dp)
+            .background(Color.Gray, RoundedCornerShape(12.dp))
+            .clickable {
+                context.startActivity(Intent(context, ListActivity::class.java))
+            },
+        contentAlignment = Alignment.Center
+    ) {
+        Image(
+            painter = painterResource(id = R.drawable.kertas),
+            contentDescription = "Menu Kertas",
+            modifier = Modifier.size(50.dp)
+        )
     }
 }

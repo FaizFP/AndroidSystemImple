@@ -1,7 +1,9 @@
 package com.example.tasananew
 
 import android.app.DatePickerDialog
+import android.content.Intent
 import android.os.Bundle
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.background
@@ -25,22 +27,35 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.util.*
 
-class CatatanActivity : ComponentActivity() {
+class InputCatatanActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        val projectNameFromIntent = intent.getStringExtra("projectName") ?: ""
+
         setContent {
             MaterialTheme {
                 Surface(
                     modifier = Modifier.fillMaxSize(),
                     color = Color(0xFF6F765C)
                 ) {
-                    FormCatatan(
+                    FormInputCatatan(
+                        projectName = projectNameFromIntent,
                         onSave = { catatanEntity ->
                             lifecycleScope.launch(Dispatchers.IO) {
                                 val db = AppDatabase.getDatabase(applicationContext)
                                 db.catatanDao().insertCatatan(catatanEntity)
                                 withContext(Dispatchers.Main) {
-                                    finish() // Menutup activity setelah berhasil menyimpan
+                                    Toast.makeText(
+                                        applicationContext,
+                                        "Data berhasil disimpan",
+                                        Toast.LENGTH_SHORT
+                                    ).show()
+
+                                    val intent = Intent(this@InputCatatanActivity, InputTransaksiActivity::class.java)
+                                    intent.putExtra("projectName", catatanEntity.projectName)
+                                    startActivity(intent)
+                                    finish()
                                 }
                             }
                         }
@@ -52,32 +67,17 @@ class CatatanActivity : ComponentActivity() {
 }
 
 @Composable
-fun FormCatatan(onSave: (CatatanEntitiy) -> Unit) {
-    val context = LocalContext.current
-
-    val suggest = remember { mutableStateOf("") }
-    val selectedProject = remember { mutableStateOf("") }
-    val selectedCategory = remember { mutableStateOf("investigation") }
-    val selectedStatus = remember { mutableStateOf("ONGOING") }
-
-    val startDate = remember { mutableStateOf("") }
-    val endDate = remember { mutableStateOf("") }
-    val namaPemangkuKepentingan = remember { mutableStateOf("") }
-    val namaPeran = remember { mutableStateOf("") }
-
-    val projectOptions = remember { mutableStateListOf<String>() }
-
-    LaunchedEffect(Unit) {
-        val db = AppDatabase.getDatabase(context)
-        val projects = withContext(Dispatchers.IO) {
-            db.projectDao().getAllProjects()
-        }
-        projectOptions.clear()
-        projectOptions.addAll(projects.map { it.name })
-        if (projectOptions.isNotEmpty()) {
-            selectedProject.value = projectOptions[0]
-        }
-    }
+fun FormInputCatatan(
+    projectName: String,
+    onSave: (CatatanEntitiy) -> Unit
+) {
+    val inputSuggest = remember { mutableStateOf("") }
+    val inputCategory = remember { mutableStateOf("investigation") }
+    val inputStatus = remember { mutableStateOf("ONGOING") }
+    val dateStart = remember { mutableStateOf("") }
+    val dateEnd = remember { mutableStateOf("") }
+    val inputPemangku = remember { mutableStateOf("") }
+    val inputPeran = remember { mutableStateOf("") }
 
     Box(
         modifier = Modifier
@@ -96,13 +96,22 @@ fun FormCatatan(onSave: (CatatanEntitiy) -> Unit) {
             Spacer(modifier = Modifier.height(16.dp))
 
             Text("Nama Project", modifier = Modifier.align(Alignment.Start), color = Color.White)
-            DropdownMenuBox(selected = selectedProject, options = projectOptions)
+            Text(
+                text = projectName,
+                color = Color.White,
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(12.dp)
+                    .background(Color.DarkGray, RoundedCornerShape(5.dp))
+                    .padding(12.dp)
+            )
             Spacer(modifier = Modifier.height(8.dp))
 
             OutlinedTextField(
-                value = suggest.value,
-                onValueChange = { suggest.value = it },
-                label = { Text("Suggest", color = Color.White) },
+                value = inputSuggest.value,
+                onValueChange = { inputSuggest.value = it },
+                label = { Text("Saran", color = Color.White) },
                 colors = OutlinedTextFieldDefaults.colors(
                     focusedContainerColor = Color.DarkGray,
                     unfocusedContainerColor = Color.DarkGray,
@@ -115,25 +124,25 @@ fun FormCatatan(onSave: (CatatanEntitiy) -> Unit) {
             )
             Spacer(modifier = Modifier.height(8.dp))
 
-            Text("Category", modifier = Modifier.align(Alignment.Start), color = Color.White)
-            DropdownMenuBox(selected = selectedCategory, options = listOf("investigation", "comparison", "maintenance"))
+            Text("Kategori", modifier = Modifier.align(Alignment.Start), color = Color.White)
+            DropdownMenuBoxInput(selected = inputCategory, options = listOf("investigation", "comparison", "maintenance"))
             Spacer(modifier = Modifier.height(8.dp))
 
             Text("Status", modifier = Modifier.align(Alignment.Start), color = Color.White)
-            DropdownMenuBox(selected = selectedStatus, options = listOf("ONGOING", "PENDING", "DONE"))
+            DropdownMenuBoxInput(selected = inputStatus, options = listOf("ONGOING", "PENDING", "DONE"))
             Spacer(modifier = Modifier.height(8.dp))
 
-            Text("Start Date", modifier = Modifier.align(Alignment.Start), color = Color.White)
-            DatePickerField("Pilih Tanggal Mulai", selectedDate = startDate)
+            Text("Tanggal Mulai", modifier = Modifier.align(Alignment.Start), color = Color.White)
+            DatePickerFieldInput("Pilih Tanggal Mulai", selectedDate = dateStart)
             Spacer(modifier = Modifier.height(8.dp))
 
-            Text("End Date", modifier = Modifier.align(Alignment.Start), color = Color.White)
-            DatePickerField("Pilih Tanggal Selesai", selectedDate = endDate)
+            Text("Tanggal Selesai", modifier = Modifier.align(Alignment.Start), color = Color.White)
+            DatePickerFieldInput("Pilih Tanggal Selesai", selectedDate = dateEnd)
             Spacer(modifier = Modifier.height(8.dp))
 
             OutlinedTextField(
-                value = namaPemangkuKepentingan.value,
-                onValueChange = { namaPemangkuKepentingan.value = it },
+                value = inputPemangku.value,
+                onValueChange = { inputPemangku.value = it },
                 label = { Text("Nama Pemangku Kepentingan", color = Color.White) },
                 colors = OutlinedTextFieldDefaults.colors(
                     focusedContainerColor = Color.DarkGray,
@@ -148,8 +157,8 @@ fun FormCatatan(onSave: (CatatanEntitiy) -> Unit) {
             Spacer(modifier = Modifier.height(8.dp))
 
             OutlinedTextField(
-                value = namaPeran.value,
-                onValueChange = { namaPeran.value = it },
+                value = inputPeran.value,
+                onValueChange = { inputPeran.value = it },
                 label = { Text("Nama Peran", color = Color.White) },
                 colors = OutlinedTextFieldDefaults.colors(
                     focusedContainerColor = Color.DarkGray,
@@ -166,28 +175,28 @@ fun FormCatatan(onSave: (CatatanEntitiy) -> Unit) {
             Button(
                 onClick = {
                     val catatan = CatatanEntitiy(
-                        projectName = selectedProject.value,
-                        suggest = suggest.value,
-                        category = selectedCategory.value,
-                        status = selectedStatus.value,
-                        startDate = startDate.value,
-                        endDate = endDate.value,
-                        namaPemangkuKepentingan = namaPemangkuKepentingan.value,
-                        namaPeran = namaPeran.value
+                        projectName = projectName,
+                        suggest = inputSuggest.value,
+                        category = inputCategory.value,
+                        status = inputStatus.value,
+                        startDate = dateStart.value,
+                        endDate = dateEnd.value,
+                        namaPemangkuKepentingan = inputPemangku.value,
+                        namaPeran = inputPeran.value
                     )
                     onSave(catatan)
                 },
                 colors = ButtonDefaults.buttonColors(containerColor = Color.LightGray),
                 modifier = Modifier.fillMaxWidth()
             ) {
-                Text("SAVE", color = Color.Black, fontWeight = FontWeight.Bold)
+                Text("NEXT", color = Color.Black, fontWeight = FontWeight.Bold)
             }
         }
     }
 }
 
 @Composable
-fun DropdownMenuBox(selected: MutableState<String>, options: List<String>) {
+fun DropdownMenuBoxInput(selected: MutableState<String>, options: List<String>) {
     var expanded by remember { mutableStateOf(false) }
 
     Box(
@@ -217,7 +226,7 @@ fun DropdownMenuBox(selected: MutableState<String>, options: List<String>) {
 }
 
 @Composable
-fun DatePickerField(label: String, selectedDate: MutableState<String>) {
+fun DatePickerFieldInput(label: String, selectedDate: MutableState<String>) {
     val context = LocalContext.current
     val calendar = Calendar.getInstance()
     val year = calendar.get(Calendar.YEAR)

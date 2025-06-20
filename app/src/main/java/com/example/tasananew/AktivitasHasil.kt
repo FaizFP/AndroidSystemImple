@@ -20,29 +20,33 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.tasananew.database.CatatanEntitiy
-import com.example.tasananew.database.CatatanViewModel
-import com.example.tasananew.database.CatatanViewModelFactory
+import com.example.tasananew.database.AktivitasViewModel
+import com.example.tasananew.database.AktivitasViewModelFactory
 
 @Composable
-fun CatatanHasilScreen() {
+fun AktivitasHasilScreen() {
     val context = LocalContext.current
     val application = context.applicationContext as Application
-    val factory = CatatanViewModelFactory(application)
-    val viewModel: CatatanViewModel = viewModel(factory = factory)
+    val factory = AktivitasViewModelFactory(application)
+    val viewModel: AktivitasViewModel = viewModel(factory = factory)
 
-    val catatanList by viewModel.projects.observeAsState(emptyList())
+    val aktivitasList by viewModel.aktivitasList.observeAsState(emptyList())
 
     var selectedFilter by remember { mutableStateOf("Semua") }
-    val filterOptions = listOf("Semua", "Saran", "Kategori", "Status", "Mulai", "Selesai", "Pemangku", "Peran")
+    val filterOptions = listOf("Semua", "Model", "Algoritma", "Hyperparam")
     var dropdownExpanded by remember { mutableStateOf(false) }
 
     Surface(modifier = Modifier.fillMaxSize(), color = Color(0xFF2F3E2F)) {
-        Column(modifier = Modifier.fillMaxSize().padding(16.dp)) {
-            Text("Daftar Catatan", fontSize = 20.sp, color = Color.White)
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(16.dp)
+        ) {
 
+            Text("Daftar Aktivitas", fontSize = 20.sp, color = Color.White)
             Spacer(modifier = Modifier.height(8.dp))
 
+            // Dropdown filter
             Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.CenterEnd) {
                 Button(
                     onClick = { dropdownExpanded = true },
@@ -53,7 +57,6 @@ fun CatatanHasilScreen() {
                 ) {
                     Text(selectedFilter)
                 }
-
                 DropdownMenu(
                     expanded = dropdownExpanded,
                     onDismissRequest = { dropdownExpanded = false }
@@ -72,9 +75,10 @@ fun CatatanHasilScreen() {
 
             Spacer(modifier = Modifier.height(8.dp))
 
-            if (catatanList.isEmpty()) {
-                Text("Belum ada data catatan.", color = Color.White)
+            if (aktivitasList.isEmpty()) {
+                Text("Belum ada data aktivitas.", color = Color.White)
             } else {
+                // Header Kolom
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -82,28 +86,19 @@ fun CatatanHasilScreen() {
                         .background(Color.DarkGray),
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
-                    Text("Proyek", color = Color.White, modifier = Modifier.weight(1f))
-
-                    if (selectedFilter == "Semua" || selectedFilter == "Saran")
-                        Text("Saran", color = Color.White, modifier = Modifier.weight(1f))
-                    if (selectedFilter == "Semua" || selectedFilter == "Kategori")
-                        Text("Kategori", color = Color.White, modifier = Modifier.weight(1f))
-                    if (selectedFilter == "Semua" || selectedFilter == "Status")
-                        Text("Status", color = Color.White, modifier = Modifier.weight(1f))
-                    if (selectedFilter == "Semua" || selectedFilter == "Mulai")
-                        Text("Mulai", color = Color.White, modifier = Modifier.weight(1f))
-                    if (selectedFilter == "Semua" || selectedFilter == "Selesai")
-                        Text("Selesai", color = Color.White, modifier = Modifier.weight(1f))
-                    if (selectedFilter == "Semua" || selectedFilter == "Pemangku")
-                        Text("Pemangku", color = Color.White, modifier = Modifier.weight(1f))
-                    if (selectedFilter == "Semua" || selectedFilter == "Peran")
-                        Text("Peran", color = Color.White, modifier = Modifier.weight(1f))
+                    Text("Project", color = Color.White, modifier = Modifier.weight(1f))
+                    if (selectedFilter == "Semua" || selectedFilter == "Model")
+                        Text("Model", color = Color.White, modifier = Modifier.weight(1f))
+                    if (selectedFilter == "Semua" || selectedFilter == "Algoritma")
+                        Text("Algoritma", color = Color.White, modifier = Modifier.weight(1f))
+                    if (selectedFilter == "Semua" || selectedFilter == "Hyperparam")
+                        Text("Hyperparam", color = Color.White, modifier = Modifier.weight(1f))
                 }
-
                 Divider(color = Color.White)
 
+                // Isi Tabel
                 LazyColumn(modifier = Modifier.weight(1f)) {
-                    items(catatanList) { catatan: CatatanEntitiy ->
+                    items(aktivitasList) { aktivitas ->
                         Column {
                             Row(
                                 modifier = Modifier
@@ -111,24 +106,16 @@ fun CatatanHasilScreen() {
                                     .padding(vertical = 8.dp),
                                 horizontalArrangement = Arrangement.SpaceBetween
                             ) {
-                                Text(catatan.projectName, color = Color.White, modifier = Modifier.weight(1f))
-
-                                if (selectedFilter == "Semua" || selectedFilter == "Saran")
-                                    Text(catatan.suggest, color = Color.White, modifier = Modifier.weight(1f))
-                                if (selectedFilter == "Semua" || selectedFilter == "Kategori")
-                                    Text(catatan.category, color = Color.White, modifier = Modifier.weight(1f))
-                                if (selectedFilter == "Semua" || selectedFilter == "Status")
-                                    Text(catatan.status, color = Color.White, modifier = Modifier.weight(1f))
-                                if (selectedFilter == "Semua" || selectedFilter == "Mulai")
-                                    Text(catatan.startDate, color = Color.White, modifier = Modifier.weight(1f))
-                                if (selectedFilter == "Semua" || selectedFilter == "Selesai")
-                                    Text(catatan.endDate, color = Color.White, modifier = Modifier.weight(1f))
-                                if (selectedFilter == "Semua" || selectedFilter == "Pemangku")
-                                    Text(catatan.namaPemangkuKepentingan, color = Color.White, modifier = Modifier.weight(1f))
-                                if (selectedFilter == "Semua" || selectedFilter == "Peran")
-                                    Text(catatan.namaPeran, color = Color.White, modifier = Modifier.weight(1f))
+                                Text(aktivitas.projectName, color = Color.White, modifier = Modifier.weight(1f))
+                                if (selectedFilter == "Semua" || selectedFilter == "Model")
+                                    Text(aktivitas.modelType, color = Color.White, modifier = Modifier.weight(1f))
+                                if (selectedFilter == "Semua" || selectedFilter == "Algoritma")
+                                    Text(aktivitas.algorithmUsed, color = Color.White, modifier = Modifier.weight(1f))
+                                if (selectedFilter == "Semua" || selectedFilter == "Hyperparam")
+                                    Text(aktivitas.hyperparameters, color = Color.White, modifier = Modifier.weight(1f))
                             }
 
+                            // Tombol Edit dan Delete
                             Row(
                                 modifier = Modifier
                                     .fillMaxWidth()
@@ -141,16 +128,12 @@ fun CatatanHasilScreen() {
                                     modifier = Modifier
                                         .padding(end = 16.dp)
                                         .clickable {
-                                            val intent = Intent(context, EditCatatanActivity::class.java).apply {
-                                                putExtra("id", catatan.id)
-                                                putExtra("projectName", catatan.projectName)
-                                                putExtra("suggest", catatan.suggest)
-                                                putExtra("category", catatan.category)
-                                                putExtra("status", catatan.status)
-                                                putExtra("startDate", catatan.startDate)
-                                                putExtra("endDate", catatan.endDate)
-                                                putExtra("namaPemangkuKepentingan", catatan.namaPemangkuKepentingan)
-                                                putExtra("namaPeran", catatan.namaPeran)
+                                            val intent = Intent(context, EditAktivitasActivity::class.java).apply {
+                                                putExtra("id", aktivitas.id)
+                                                putExtra("projectName", aktivitas.projectName)
+                                                putExtra("modelType", aktivitas.modelType)
+                                                putExtra("algorithmUsed", aktivitas.algorithmUsed)
+                                                putExtra("hyperparameters", aktivitas.hyperparameters)
                                             }
                                             context.startActivity(intent)
                                         }
@@ -159,11 +142,10 @@ fun CatatanHasilScreen() {
                                     "Delete",
                                     color = Color.Red,
                                     modifier = Modifier.clickable {
-                                        viewModel.deleteCatatan(catatan)
+                                        viewModel.deleteAktivitas(aktivitas)
                                     }
                                 )
                             }
-
                             Divider(color = Color.White.copy(alpha = 0.2f))
                         }
                     }
@@ -172,9 +154,10 @@ fun CatatanHasilScreen() {
 
             Spacer(modifier = Modifier.height(16.dp))
 
+            // Tombol Tambah Data
             Button(
                 onClick = {
-                    context.startActivity(Intent(context, CatatanActivity::class.java))
+                    context.startActivity(Intent(context, AktivitasActivity::class.java))
                 },
                 modifier = Modifier
                     .fillMaxWidth()
@@ -182,12 +165,12 @@ fun CatatanHasilScreen() {
                 shape = RoundedCornerShape(12.dp),
                 colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF4CAF50))
             ) {
-                Text("ADD CATATAN", color = Color.White, fontSize = 16.sp)
+                Text("ADD AKTIVITAS", color = Color.White, fontSize = 16.sp)
             }
 
             Spacer(modifier = Modifier.height(12.dp))
 
-            // Bagian menu bawah hanya menampilkan ikon di tengah
+            // Bagian menu bawah hanya menampilkan ikon di tengah dengan background abu-abu dan rounded corner
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -201,6 +184,7 @@ fun CatatanHasilScreen() {
                     modifier = Modifier
                         .size(40.dp)
                         .clickable {
+                            // Ubah sesuai activity tujuan
                             context.startActivity(Intent(context, ListActivity::class.java))
                         }
                 )

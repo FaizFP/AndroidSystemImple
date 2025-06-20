@@ -33,8 +33,9 @@ class ListActivity : ComponentActivity() {
                         "DATA LINGKUNGAN" -> startActivity(Intent(this, DataLingkunganListActivity::class.java))
                         "CATATAN PEMELIHARAAN" -> startActivity(Intent(this, CatatanHasilActivity::class.java))
                         "DATA TRANSAKSI INPUT DAN OUTPUT" -> startActivity(Intent(this, TransaksiHasilActivity::class.java))
-                        "KINERJA PERANGKAT LUNAK" -> startActivity(Intent(this, kinerjaPerangkatLunakActivity::class.java)) // ✅ Tambahan penting
-                        // Tambahkan juga untuk aktivitas lain jika diperlukan
+                        "KINERJA PERANGKAT LUNAK" -> startActivity(Intent(this, kinerjaPerangkatLunakActivity::class.java))
+                        "AKTIVITAS PERANGKAT LUNAK" -> startActivity(Intent(this, AktivitasHasilActivity::class.java))
+                        "DOWNLOAD" -> startActivity(Intent(this, GeneratePdfActivity::class.java))
                     }
                 },
                 context = this
@@ -74,16 +75,13 @@ fun MainScreen(
                 "AKTIVITAS PERANGKAT LUNAK",
                 "CATATAN PEMELIHARAAN",
                 "DATA LINGKUNGAN",
-                "DATA TRANSAKSI INPUT DAN OUTPUT"
+                "DATA TRANSAKSI INPUT DAN OUTPUT",
+                "DOWNLOAD"
             )
             items(dataList) { item ->
                 DataBox(title = item, onClick = { onItemClick(item) })
             }
         }
-
-        Spacer(modifier = Modifier.height(24.dp))
-
-        RoundedNextButton("Next")
 
         Spacer(modifier = Modifier.height(16.dp))
 
@@ -133,20 +131,6 @@ fun DataBox(title: String, onClick: () -> Unit) {
         ) {
             Text(text = title, fontSize = 16.sp, color = Color.Black)
         }
-    }
-}
-
-@Composable
-fun RoundedNextButton(text: String) {
-    Button(
-        onClick = { /* TODO: Action */ },
-        shape = RoundedCornerShape(50),
-        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFD9D9D9)),
-        modifier = Modifier
-            .fillMaxWidth(0.6f)
-            .height(50.dp)
-    ) {
-        Text(text = text, fontSize = 16.sp, color = Color.Black)
     }
 }
 

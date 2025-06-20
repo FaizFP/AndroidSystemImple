@@ -13,7 +13,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.example.tasananew.database.AppDatabase
 import com.example.tasananew.database.LingkunganEntity
 import kotlinx.coroutines.CoroutineScope
@@ -28,15 +30,15 @@ class EditLingkunganActivity : ComponentActivity() {
         val dao = AppDatabase.getDatabase(application).lingkunganDao()
 
         setContent {
-            var projectName by remember { mutableStateOf("") }
             var os by remember { mutableStateOf("") }
             var cpu by remember { mutableStateOf("") }
             var ram by remember { mutableStateOf("") }
             var database by remember { mutableStateOf("") }
+            var projectName by remember { mutableStateOf("") } // Tetap digunakan secara internal
 
             val context = LocalContext.current
 
-            // Ambil data awal dari database
+            // Ambil data dari database berdasarkan ID
             LaunchedEffect(id) {
                 dao.getAll().observeForever { list ->
                     list.find { it.id == id }?.let { data ->
@@ -49,57 +51,64 @@ class EditLingkunganActivity : ComponentActivity() {
                 }
             }
 
-            Box(
+            Column(
                 modifier = Modifier
                     .fillMaxSize()
+                    .background(Color(0xFF6F765C)) // Warna background seperti TransaksiScreen
                     .padding(16.dp),
-                contentAlignment = Alignment.Center
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center
             ) {
-                Column(
+                Card(
                     modifier = Modifier
-                        .background(Color(0xFF333D2E), RoundedCornerShape(16.dp))
-                        .padding(24.dp)
-                        .width(300.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp),
+                    shape = RoundedCornerShape(16.dp),
+                    colors = CardDefaults.cardColors(containerColor = Color(0xFF333D2E)) // Seperti TransaksiScreen
                 ) {
-                    Text(
-                        text = "Edit Data Lingkungan",
-                        color = Color.White,
-                        style = MaterialTheme.typography.titleLarge,
-                        modifier = Modifier.padding(bottom = 16.dp)
-                    )
-
-                    CustomTextField("Project Name", projectName) { projectName = it }
-                    Spacer(modifier = Modifier.height(8.dp))
-
-                    CustomTextField("OS", os) { os = it }
-                    Spacer(modifier = Modifier.height(8.dp))
-
-                    CustomTextField("CPU", cpu) { cpu = it }
-                    Spacer(modifier = Modifier.height(8.dp))
-
-                    CustomTextField("RAM", ram) { ram = it }
-                    Spacer(modifier = Modifier.height(8.dp))
-
-                    CustomTextField("Database", database) { database = it }
-                    Spacer(modifier = Modifier.height(20.dp))
-
-                    Button(
-                        onClick = {
-                            CoroutineScope(Dispatchers.IO).launch {
-                                val updated = LingkunganEntity(id, projectName, os, cpu, ram, database)
-                                dao.update(updated)
-                                launch(Dispatchers.Main) {
-                                    Toast.makeText(context, "Data berhasil diperbarui", Toast.LENGTH_SHORT).show()
-                                    finish()
-                                }
-                            }
-                        },
-                        colors = ButtonDefaults.buttonColors(containerColor = Color.LightGray),
-                        modifier = Modifier.fillMaxWidth(),
-                        enabled = projectName.isNotBlank() && os.isNotBlank() && cpu.isNotBlank() && ram.isNotBlank() && database.isNotBlank()
+                    Column(
+                        modifier = Modifier
+                            .padding(24.dp)
+                            .fillMaxWidth(),
+                        horizontalAlignment = Alignment.CenterHorizontally
                     ) {
-                        Text(text = "Simpan Perubahan", color = Color.Black, fontWeight = androidx.compose.ui.text.font.FontWeight.Bold)
+                        Text(
+                            text = "Edit Data Lingkungan",
+                            color = Color.White,
+                            fontSize = 20.sp,
+                            fontWeight = FontWeight.Bold,
+                            modifier = Modifier.padding(bottom = 16.dp)
+                        )
+
+                        CustomTextFieldEdit("Operating System", os) { os = it }
+                        Spacer(modifier = Modifier.height(8.dp))
+
+                        CustomTextFieldEdit("CPU (Core)", cpu) { cpu = it }
+                        Spacer(modifier = Modifier.height(8.dp))
+
+                        CustomTextFieldEdit("RAM", ram) { ram = it }
+                        Spacer(modifier = Modifier.height(8.dp))
+
+                        CustomTextFieldEdit("Database", database) { database = it }
+                        Spacer(modifier = Modifier.height(20.dp))
+
+                        Button(
+                            onClick = {
+                                CoroutineScope(Dispatchers.IO).launch {
+                                    val updated = LingkunganEntity(id, projectName, os, cpu, ram, database)
+                                    dao.update(updated)
+                                    launch(Dispatchers.Main) {
+                                        Toast.makeText(context, "Data berhasil diperbarui", Toast.LENGTH_SHORT).show()
+                                        finish()
+                                    }
+                                }
+                            },
+                            colors = ButtonDefaults.buttonColors(containerColor = Color.White),
+                            modifier = Modifier.fillMaxWidth(),
+                            enabled = os.isNotBlank() && cpu.isNotBlank() && ram.isNotBlank() && database.isNotBlank()
+                        ) {
+                            Text("SAVE", color = Color.Black, fontWeight = FontWeight.Bold)
+                        }
                     }
                 }
             }
@@ -122,8 +131,6 @@ fun CustomTextFieldEdit(label: String, value: String, onValueChange: (String) ->
                 cursorColor = Color.White,
                 focusedTextColor = Color.White,
                 unfocusedTextColor = Color.White,
-                focusedLabelColor = Color.White,
-                unfocusedLabelColor = Color.White,
                 containerColor = Color.DarkGray
             )
         )

@@ -9,18 +9,8 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
-import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -43,7 +33,6 @@ fun DataLingkunganHasilScreen() {
 
     val lingkunganList by viewModel.lingkunganList.observeAsState(emptyList())
 
-    // Filter tanpa "Proyek"
     var selectedLingkunganFilter by remember { mutableStateOf("Semua") }
     val lingkunganFilterOptions = listOf("Semua", "OS", "CPU", "RAM", "DB")
 
@@ -70,7 +59,6 @@ fun DataLingkunganHasilScreen() {
             if (lingkunganList.isEmpty()) {
                 Text("Belum ada data lingkungan.", color = Color.White)
             } else {
-                // Header selalu ada kolom Proyek
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -78,10 +66,8 @@ fun DataLingkunganHasilScreen() {
                         .background(Color.DarkGray),
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
-                    // Kolom Proyek selalu tampil
                     Text("Proyek", color = Color.White, modifier = Modifier.weight(1f))
 
-                    // Kolom lain tampil sesuai filter yang dipilih atau Semua
                     if (selectedLingkunganFilter == "Semua" || selectedLingkunganFilter == "OS")
                         Text("OS", color = Color.White, modifier = Modifier.weight(1f))
 
@@ -94,10 +80,10 @@ fun DataLingkunganHasilScreen() {
                     if (selectedLingkunganFilter == "Semua" || selectedLingkunganFilter == "DB")
                         Text("DB", color = Color.White, modifier = Modifier.weight(1f))
 
-                    Spacer(modifier = Modifier.width(60.dp)) // ruang untuk kolom aksi Edit/Delete
+                    Spacer(modifier = Modifier.width(60.dp))
                 }
 
-                HorizontalDivider(color = Color.White)
+                Divider(color = Color.White)
 
                 LazyColumn(modifier = Modifier.weight(1f)) {
                     items(lingkunganList) { item: LingkunganEntity ->
@@ -107,7 +93,6 @@ fun DataLingkunganHasilScreen() {
                                 .padding(vertical = 8.dp),
                             horizontalArrangement = Arrangement.SpaceBetween
                         ) {
-                            // Proyek selalu tampil
                             Text(item.projectName, color = Color.White, modifier = Modifier.weight(1f))
 
                             if (selectedLingkunganFilter == "Semua" || selectedLingkunganFilter == "OS")
@@ -143,38 +128,45 @@ fun DataLingkunganHasilScreen() {
                                 )
                             }
                         }
-                        HorizontalDivider(color = Color.White.copy(alpha = 0.2f))
+                        Divider(color = Color.White.copy(alpha = 0.2f))
                     }
                 }
             }
 
-            CustomRoundedButton("ADD DATA") {
-                context.startActivity(Intent(context, DataLingkunganActivity::class.java))
+            Spacer(Modifier.height(16.dp))
+
+            Button(
+                onClick = { context.startActivity(Intent(context, DataLingkunganActivity::class.java)) },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(50.dp),
+                shape = RoundedCornerShape(12.dp),
+                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF4CAF50))
+            ) {
+                Text("ADD DATALINGKUNGAN", color = Color.White, fontSize = 16.sp)
             }
 
+            Spacer(Modifier.height(20.dp))
+
+            // Box klik ke ListActivity
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(70.dp)
-                    .padding(top = 16.dp)
-                    .background(Color.Gray, shape = RoundedCornerShape(12.dp)),
+                    .background(Color.Gray, shape = RoundedCornerShape(12.dp))
+                    .clickable {
+                        context.startActivity(Intent(context, ListActivity::class.java))
+                    },
                 contentAlignment = Alignment.Center
             ) {
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.Center
-                ) {
-                    Image(
-                        painter = painterResource(id = R.drawable.kertas),
-                        contentDescription = "Menu Kertas",
-                        modifier = Modifier
-                            .size(50.dp)
-                            .clickable {
-                                context.startActivity(Intent(context, ListActivity::class.java))
-                            }
-                    )
-                }
+                Image(
+                    painter = painterResource(id = R.drawable.kertas),
+                    contentDescription = "Menu Kertas",
+                    modifier = Modifier.size(50.dp)
+                )
             }
+
+            Spacer(Modifier.height(20.dp))
         }
     }
 }
@@ -210,18 +202,5 @@ fun LingkunganFilterMenu(
                 )
             }
         }
-    }
-}
-
-@Composable
-fun CustomRoundedButton(text: String, onClick: () -> Unit) {
-    Button(
-        onClick = onClick,
-        shape = RoundedCornerShape(24.dp),
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(48.dp)
-    ) {
-        Text(text = text, fontSize = 16.sp)
     }
 }

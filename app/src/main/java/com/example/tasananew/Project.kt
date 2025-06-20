@@ -1,8 +1,11 @@
 package com.example.tasananew
 
+import android.content.Intent
 import android.os.Bundle
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -15,7 +18,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.tasananew.database.AppDatabase
@@ -23,8 +25,6 @@ import com.example.tasananew.database.ProjectEntitity
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import android.content.Intent
-
 
 class ProjectActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -57,7 +57,6 @@ fun FormProject() {
             .padding(16.dp),
         verticalArrangement = Arrangement.SpaceBetween
     ) {
-        // Form input di atas
         Column(
             modifier = Modifier
                 .background(Color(0xFF6F765C), RoundedCornerShape(16.dp))
@@ -130,34 +129,46 @@ fun FormProject() {
 
             Button(
                 onClick = {
-                    scope.launch {
-                        val db = AppDatabase.getDatabase(context)
-                        val projectDao = db.projectDao()
+                    val nama = namaProject.value.trim()
+                    val model = modelUsed.value.trim()
+                    val deskripsiText = deskripsi.value.trim()
 
-                        val project = ProjectEntitity(
-                            name = namaProject.value,
-                            model = modelUsed.value,
-                            description = deskripsi.value
-                        )
+                    if (nama.isNotEmpty() && model.isNotEmpty() && deskripsiText.isNotEmpty()) {
+                        scope.launch {
+                            withContext(Dispatchers.IO) {
+                                val db = AppDatabase.getDatabase(context)
+                                db.projectDao().insertProject(
+                                    ProjectEntitity(
+                                        name = nama,
+                                        model = model,
+                                        description = deskripsiText
+                                    )
+                                )
+                            }
 
-                        withContext(Dispatchers.IO) {
-                            projectDao.insertProject(project)
+                            Toast.makeText(context, "Project berhasil disimpan!", Toast.LENGTH_SHORT).show()
+
+                            // Pindah ke halaman berikutnya
+                            val intent = Intent(context, LingkunganInputActivity::class.java).apply {
+                                putExtra("projectName", nama)
+                            }
+                            context.startActivity(intent)
                         }
-
-                        // Kosongkan form setelah save
-                        namaProject.value = ""
-                        modelUsed.value = ""
-                        deskripsi.value = ""
+                    } else {
+                        Toast.makeText(context, "Semua field wajib diisi", Toast.LENGTH_SHORT).show()
                     }
                 },
                 colors = ButtonDefaults.buttonColors(containerColor = Color.LightGray),
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth(),
+                enabled = namaProject.value.isNotBlank() &&
+                        modelUsed.value.isNotBlank() &&
+                        deskripsi.value.isNotBlank()
             ) {
-                Text("SAVE", color = Color.Black, fontWeight = FontWeight.Bold)
+                Text("NEXT", color = Color.Black, fontWeight = FontWeight.Bold)
             }
         }
 
-        // Menu bar bawah
+        // Menu bawah
         Box(
             modifier = Modifier
                 .fillMaxWidth()
@@ -170,8 +181,7 @@ fun FormProject() {
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.Center
             ) {
-                val context = LocalContext.current
-                androidx.compose.foundation.Image(
+                Image(
                     painter = painterResource(id = R.drawable.kertas),
                     contentDescription = "Menu Kertas",
                     modifier = Modifier
@@ -186,4 +196,3 @@ fun FormProject() {
         }
     }
 }
-

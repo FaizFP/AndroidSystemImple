@@ -5,8 +5,11 @@ import android.content.ContentValues
 import android.content.Context
 import android.graphics.BitmapFactory
 import android.net.Uri
+import android.os.Bundle
 import android.provider.MediaStore
 import android.widget.Toast
+import androidx.activity.ComponentActivity
+import androidx.activity.compose.setContent
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
@@ -22,24 +25,56 @@ import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.content.ContextCompat.startActivity
+import com.example.tasananew.database.AppDatabase
 import com.example.tasananew.database.TransaksiEntity
 import com.example.tasananew.database.TransaksiViewModel
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import java.io.File
 import java.io.FileOutputStream
 import java.text.SimpleDateFormat
 import java.util.*
 
+class InputTransaksiActivity : ComponentActivity() {
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+
+        val viewModel = TransaksiViewModel(application)
+        val projectNameFromIntent = intent.getStringExtra("projectName") ?: ""
+
+        setContent {
+            InputTransaksiScreen(viewModel = viewModel, initialProjectName = projectNameFromIntent)
+        }
+    }
+}
+
 @Composable
-fun EditTransaksiScreen(
-    transaksi: TransaksiEntity,
-    viewModel: TransaksiViewModel,
-    onBack: () -> Unit
-) {
+fun InputTransaksiScreen(viewModel: TransaksiViewModel, initialProjectName: String) {
     val context = LocalContext.current
-    var inputData by remember { mutableStateOf(transaksi.inputData) }
+    var inputData by remember { mutableStateOf("") }
     var selectedFileUri by remember { mutableStateOf<Uri?>(null) }
     var tempFileUri by remember { mutableStateOf<Uri?>(null) }
     val photoUri = remember { mutableStateOf<Uri?>(null) }
+
+    val selectedProject = remember { mutableStateOf("") }
+    val projectOptions = remember { mutableStateListOf<String>() }
+
+    LaunchedEffect(Unit) {
+        val db = AppDatabase.getDatabase(context)
+        val projects = withContext(Dispatchers.IO) {
+            db.projectDao().getAllProjects()
+        }
+        projectOptions.clear()
+        projectOptions.addAll(projects.map { it.name })
+        if (projectOptions.isNotEmpty()) {
+            selectedProject.value = if (initialProjectName in projectOptions) {
+                initialProjectName
+            } else {
+                projectOptions[0]
+            }
+        }
+    }
 
     val filePickerLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetContent()
@@ -65,7 +100,7 @@ fun EditTransaksiScreen(
         contract = ActivityResultContracts.RequestPermission()
     ) { granted ->
         if (granted) {
-            val uri = createEditImageUri(context)
+            val uri = createImageUriForInput(context)
             photoUri.value = uri
             takePictureLauncher.launch(uri)
         } else {
@@ -80,7 +115,7 @@ fun EditTransaksiScreen(
             .padding(16.dp)
     ) {
         Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
-            Text("EDIT TRANSAKSI", fontSize = 24.sp, color = Color.White)
+            Text("INPUT TRANSAKSI", fontSize = 24.sp, color = Color.White)
         }
 
         Spacer(modifier = Modifier.height(16.dp))
@@ -91,6 +126,11 @@ fun EditTransaksiScreen(
             colors = CardDefaults.cardColors(containerColor = Color(0xFF333D2E))
         ) {
             Column(modifier = Modifier.padding(16.dp)) {
+                Text("Pilih Project", color = Color.White)
+                DropdownMenuBox(selected = selectedProject, options = projectOptions)
+
+                Spacer(modifier = Modifier.height(16.dp))
+
                 Text("Deskripsi Data", color = Color.White)
                 OutlinedTextField(
                     value = inputData,
@@ -148,7 +188,7 @@ fun EditTransaksiScreen(
                             }
                         }
                     } else {
-                        val fileName = getEditFileNameFromUri(context, uri)
+                        val fileName = getFileNameFromUriForInput(context, uri)
                         Text(
                             text = "File dipilih: $fileName",
                             color = Color.White,
@@ -162,36 +202,55 @@ fun EditTransaksiScreen(
                 Button(
                     onClick = {
                         selectedFileUri = tempFileUri
-                        val finalFileName = selectedFileUri?.let { uri ->
-                            val name = getEditFileNameFromUri(context, uri)
-                            val success = saveEditFileToInternalStorage(context, uri, name)
-                            if (success) name else null
-                        } ?: File(transaksi.photoFileName).name
+                        selectedFileUri?.let { uri ->
+                            val fileName = getFileNameFromUriForInput(context, uri)
+                            val success = saveFileToInternalStorageForInput(context, uri, fileName)
+                            if (success) {
+                                val savedPath = File(context.filesDir, fileName).absolutePath
+                                val transaksi = TransaksiEntity(
+                                    projectName = selectedProject.value,
+                                    inputData = inputData,
+                                    photoFileName = savedPath
+                                )
+                                viewModel.insertTransaksi(transaksi)
+                                Toast.makeText(
+                                    context,
+                                    "Data disimpan: ${selectedProject.value}\nFile disalin ke: $savedPath",
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                                inputData = ""
+                                tempFileUri = null
 
-                        val updated = transaksi.copy(
-                            inputData = inputData,
-                            photoFileName = File(context.filesDir, finalFileName).absolutePath
-                        )
+                                // Pindah ke InputAktivitasActivity
+                                val intent = android.content.Intent(context, InputAktivitasActivity::class.java)
+                                intent.putExtra("projectName", selectedProject.value) // opsional
+                                context.startActivity(intent)
 
-                        viewModel.updateTransaksi(updated)
-                        Toast.makeText(context, "Data berhasil diupdate", Toast.LENGTH_SHORT).show()
-                        onBack()
+                                // Tutup activity InputTransaksi jika context adalah ComponentActivity
+                                if (context is ComponentActivity) {
+                                    context.finish()
+                                }
+                            } else {
+                                Toast.makeText(context, "Gagal menyimpan file", Toast.LENGTH_SHORT).show()
+                            }
+                        }
                     },
                     modifier = Modifier.fillMaxWidth(),
-                    enabled = inputData.isNotEmpty(),
+                    enabled = inputData.isNotEmpty() && tempFileUri != null,
                     colors = ButtonDefaults.buttonColors(
                         containerColor = Color.White,
                         contentColor = Color.Black
                     )
                 ) {
-                    Text("SAVE")
+                    Text("NEXT")
                 }
             }
         }
     }
 }
 
-fun saveEditFileToInternalStorage(context: Context, uri: Uri, fileName: String): Boolean {
+// Fungsi simpan file
+fun saveFileToInternalStorageForInput(context: Context, uri: Uri, fileName: String): Boolean {
     return try {
         val inputStream = context.contentResolver.openInputStream(uri)
         val outputFile = File(context.filesDir, fileName)
@@ -209,12 +268,13 @@ fun saveEditFileToInternalStorage(context: Context, uri: Uri, fileName: String):
     }
 }
 
-fun createEditImageUri(context: Context): Uri {
+// Fungsi buat URI foto
+fun createImageUriForInput(context: Context): Uri {
     val resolver = context.contentResolver
     val contentValues = ContentValues().apply {
         put(
             MediaStore.MediaColumns.DISPLAY_NAME,
-            "IMG_${SimpleDateFormat("yyyyMMdd_HHmmss", Locale.US).format(Date())}.jpg"
+            "IMG_INPUT_${SimpleDateFormat("yyyyMMdd_HHmmss", Locale.US).format(Date())}.jpg"
         )
         put(MediaStore.MediaColumns.MIME_TYPE, "image/jpeg")
         put(MediaStore.MediaColumns.RELATIVE_PATH, "DCIM/TasAnaApp")
@@ -223,7 +283,8 @@ fun createEditImageUri(context: Context): Uri {
         ?: throw RuntimeException("Gagal membuat URI foto")
 }
 
-fun getEditFileNameFromUri(context: Context, uri: Uri): String {
+// Fungsi ambil nama file
+fun getFileNameFromUriForInput(context: Context, uri: Uri): String {
     val cursor = context.contentResolver.query(uri, null, null, null, null)
     cursor?.use {
         val nameIndex = it.getColumnIndex(MediaStore.MediaColumns.DISPLAY_NAME)
@@ -231,5 +292,5 @@ fun getEditFileNameFromUri(context: Context, uri: Uri): String {
             return it.getString(nameIndex)
         }
     }
-    return uri.path?.substringAfterLast('/') ?: "unknown"
+    return uri.path?.substringAfterLast('/') ?: "unknown_input"
 }

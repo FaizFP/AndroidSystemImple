@@ -1,16 +1,19 @@
 package com.example.tasananew.database
 
-import androidx.room.Dao
-import androidx.room.Insert
-import androidx.room.Query
-import androidx.room.Update
-import androidx.room.Delete
+import androidx.room.*
+import kotlinx.coroutines.flow.Flow
 
-
+// === Project DAO ===
 @Dao
 interface ProjectDao {
     @Insert
     suspend fun insertProject(project: ProjectEntitity)
+
+    @Query("SELECT name FROM project")
+    suspend fun getAllProjectNames(): List<String>
+
+    @Query("SELECT * FROM project WHERE name = :name LIMIT 1")
+    suspend fun getProjectByName(name: String): ProjectEntitity
 
     @Query("SELECT * FROM project")
     suspend fun getAllProjects(): List<ProjectEntitity>
@@ -22,12 +25,13 @@ interface ProjectDao {
     fun delete(project: ProjectEntitity)
 }
 
+// === Catatan DAO ===
 @Dao
 interface CatatanDao {
     @Insert
     suspend fun insertCatatan(catatan: CatatanEntitiy)
 
-    @Query("SELECT * FROM catatan WHERE projectName = :projectName") // Ganti projectId jadi projectName
+    @Query("SELECT * FROM catatan WHERE projectName = :projectName")
     suspend fun getCatatanByProject(projectName: String): List<CatatanEntitiy>
 
     @Query("SELECT * FROM catatan")
@@ -39,5 +43,7 @@ interface CatatanDao {
     @Delete
     suspend fun deleteCatatan(catatan: CatatanEntitiy)
 
-
+    // Query untuk menghitung jumlah catatan per status
+    @Query("SELECT status, COUNT(*) as count FROM catatan GROUP BY status")
+    fun getStatusCounts(): Flow<List<StatusCount>>
 }

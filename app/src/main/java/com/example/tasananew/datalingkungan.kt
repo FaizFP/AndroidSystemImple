@@ -1,6 +1,7 @@
 package com.example.tasananew
 
 import android.os.Bundle
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.background
@@ -22,18 +23,17 @@ import com.example.tasananew.database.LingkunganEntity
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.TextFieldDefaults
 
 class DataLingkunganActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            DataLingkunganScreen { lingkungan ->
-                lifecycleScope.launch(Dispatchers.IO) {
-                    val db = AppDatabase.getDatabase(applicationContext)
-                    db.lingkunganDao().insert(lingkungan)
+            Surface(color = Color(0xFF6F765C)) {
+                DataLingkunganScreen { lingkungan ->
+                    lifecycleScope.launch(Dispatchers.IO) {
+                        val db = AppDatabase.getDatabase(applicationContext)
+                        db.lingkunganDao().insert(lingkungan)
+                    }
                 }
             }
         }
@@ -75,7 +75,8 @@ fun DataLingkunganScreen(onSave: (LingkunganEntity) -> Unit) {
             modifier = Modifier
                 .background(Color(0xFF333D2E), RoundedCornerShape(16.dp))
                 .padding(24.dp)
-                .width(300.dp),
+                .fillMaxWidth()
+                .wrapContentHeight(),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Text("Data Lingkungan", fontSize = 20.sp, fontWeight = FontWeight.Bold, color = Color.White)
@@ -89,7 +90,6 @@ fun DataLingkunganScreen(onSave: (LingkunganEntity) -> Unit) {
             )
 
             Spacer(modifier = Modifier.height(8.dp))
-
             CustomTextField("Operating System", os) { os = it }
             Spacer(modifier = Modifier.height(8.dp))
 
@@ -113,18 +113,19 @@ fun DataLingkunganScreen(onSave: (LingkunganEntity) -> Unit) {
                             database = database
                         )
                     )
-                    // Reset form
-                    selectedProject = projectOptions.firstOrNull().orEmpty()
-                    os = ""
-                    cpu = ""
-                    ram = ""
-                    database = ""
+
+                    Toast.makeText(context, "Data berhasil disimpan!", Toast.LENGTH_SHORT).show()
+
+                    // Tutup halaman setelah SAVE
+                    if (context is DataLingkunganActivity) {
+                        context.finish()
+                    }
                 },
-                colors = ButtonDefaults.buttonColors(containerColor = Color.LightGray),
+                colors = ButtonDefaults.buttonColors(containerColor = Color.White, contentColor = Color.Black),
                 modifier = Modifier.fillMaxWidth(),
                 enabled = selectedProject.isNotBlank() && os.isNotBlank() && cpu.isNotBlank() && ram.isNotBlank() && database.isNotBlank()
             ) {
-                Text("SAVE", color = Color.Black, fontWeight = FontWeight.Bold)
+                Text("SAVE", fontWeight = FontWeight.Bold)
             }
         }
     }
@@ -181,8 +182,6 @@ fun CustomTextField(label: String, value: String, onValueChange: (String) -> Uni
                 cursorColor = Color.White,
                 focusedTextColor = Color.White,
                 unfocusedTextColor = Color.White,
-                focusedLabelColor = Color.White,
-                unfocusedLabelColor = Color.White,
                 containerColor = Color.DarkGray
             )
         )

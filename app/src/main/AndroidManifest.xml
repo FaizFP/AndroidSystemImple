@@ -4,6 +4,10 @@
         android:name="android.hardware.camera"
         android:required="false" />
     <uses-permission android:name="android.permission.CAMERA" />
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+
 
     <application
         android:allowBackup="true"
@@ -36,6 +40,15 @@
         <activity android:name=".TransaksiHasilActivity" />
         <activity android:name=".EditTransaksiActivity" />
         <activity android:name=".kinerjaPerangkatLunakActivity" />
+        <activity android:name=".LingkunganInputActivity" />
+        <activity android:name=".InputCatatanActivity" />
+        <activity android:name=".InputTransaksiActivity" />
+        <activity android:name=".AktivitasActivity" />
+        <activity android:name=".AktivitasHasilActivity" />
+        <activity android:name=".EditAktivitasActivity" />
+        <activity android:name=".InputAktivitasActivity" />
+        <activity android:name=".GeneratePdfActivity" />
+
 
     </application>
 
