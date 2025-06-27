@@ -46,64 +46,72 @@ class ProjectViewModel(application: Application) : AndroidViewModel(application)
     }
 
     /**
-     * Mengambil data dari API (simulasi) dan menyimpannya sebagai AktivitasEntity.
-     * Kode ini sudah diperbaiki untuk mengatasi error foreign key.
+     * Fetch data dari API nyata dan simpan ke database lokal.
      */
     fun fetchProjectAndActivityFromApi() {
         viewModelScope.launch(Dispatchers.IO) {
             try {
-                // Contoh hardcoded JSON, kamu bisa ganti dengan request API asli jika sudah tersedia
-                val jsonResponse = """
-                [
-                    {
-                        "project_detail": {
-                            "name": "web manajemen proyek"
-                        },
-                        "model_name": "RandomForestClassifier_v1.0",
-                        "model_type": "classification",
-                        "algorithm_used": "Random Forest",
-                        "refining_strategy": "Hyperparameter tuning menggunakan GridSearchCV pada n_estimators dan max_depth."
+                val client = OkHttpClient()
+                val request = Request.Builder()
+                    .url("https://arlellll.pythonanywhere.com/api-content/training-models/")
+                    .build()
+
+                val response = client.newCall(request).execute()
+
+                if (response.isSuccessful) {
+                    val responseBody = response.body?.string()
+                    if (!responseBody.isNullOrEmpty()) {
+                        val jsonArray = JSONArray(responseBody)
+
+                        for (i in 0 until jsonArray.length()) {
+                            val item = jsonArray.getJSONObject(i)
+
+                            val projectDetail = item.getJSONObject("project_detail")
+                            val name = projectDetail.getString("name")
+                            val description = projectDetail.getString("description")
+                            val model = item.getString("model_name")
+                            val modelType = item.getString("model_type")
+                            val algorithmUsed = item.getString("algorithm_used")
+                            val refiningStrategy = item.optString("refining_strategy", "-")
+
+                            // Simpan ke ProjectEntity
+                            val project = ProjectEntitity(
+                                name = name,
+                                model = model,
+                                description = description
+                            )
+                            projectDao.insertProject(project)
+
+                            // Simpan ke AktivitasEntity
+                            val activity = AktivitasEntity(
+                                projectName = name,
+                                modelType = modelType,
+                                algorithmUsed = algorithmUsed,
+                                hyperparameters = refiningStrategy
+                            )
+                            aktivitasDao.insertAktivitas(activity)
+                        }
+
+                        withContext(Dispatchers.Main) {
+                            Toast.makeText(
+                                getApplication(),
+                                "Data berhasil diambil dari API dan disimpan!",
+                                Toast.LENGTH_LONG
+                            ).show()
+                        }
+
+                        loadProjects()
                     }
-                ]
-            """.trimIndent()
-
-                val jsonArray = JSONArray(jsonResponse)
-                if (jsonArray.length() > 0) {
-                    val projectData = jsonArray.getJSONObject(0)
-                    val projectDetail = projectData.getJSONObject("project_detail")
-                    val name = projectDetail.getString("name")
-                    val model = projectData.getString("model_name")
-                    val description = "Membuat aplikasi Manajemen Proyek berbasis django untuk melengkapi tugas semester 4"
-
-                    // 1. Simpan ke ProjectEntitity
-                    val project = ProjectEntitity(
-                        name = name,
-                        model = model,
-                        description = description // Deskripsi baru ditambahkan di sini
-                    )
-                    projectDao.insertProject(project)
-
-                    // 2. Simpan ke AktivitasEntity
-                    val activity = AktivitasEntity(
-                        projectName = name,
-                        modelType = projectData.getString("model_type"),
-                        algorithmUsed = projectData.getString("algorithm_used"),
-                        hyperparameters = projectData.getString("refining_strategy")
-                    )
-                    aktivitasDao.insertAktivitas(activity)
-
-                    // 3. Tampilkan toast sukses di UI
+                } else {
                     withContext(Dispatchers.Main) {
                         Toast.makeText(
                             getApplication(),
-                            "Data proyek & aktivitas berhasil diambil dari API!",
+                            "Respon gagal: ${response.code}",
                             Toast.LENGTH_LONG
                         ).show()
                     }
-
-                    // 4. Refresh daftar proyek
-                    loadProjects()
                 }
+
             } catch (e: Exception) {
                 e.printStackTrace()
                 withContext(Dispatchers.Main) {
